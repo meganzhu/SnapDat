@@ -68,6 +68,7 @@
 		5481431116E7BAF100F117F0 /* send-field-landscape.png in Resources */ = {isa = PBXBuildFile; fileRef = 548142DD16E7BAF100F117F0 /* send-field-landscape.png */; };
 		CE0ECFBC178E0FA9005847F5 /* PhotoLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CE0ECFBB178E0FA9005847F5 /* PhotoLayer.m */; };
 		CE8ABF40178F32DC00F1A745 /* Data.m in Sources */ = {isa = PBXBuildFile; fileRef = CE8ABF3F178F32DC00F1A745 /* Data.m */; };
+		CE8CA0C917909E9F00BF12EB /* wordbank.plist in Resources */ = {isa = PBXBuildFile; fileRef = CE8CA0C817909E9F00BF12EB /* wordbank.plist */; };
 		D31F564E168AEBDA009C881F /* GhostIcon-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = D31F5630168AEBDA009C881F /* GhostIcon-hd.png */; };
 		D31F564F168AEBDA009C881F /* GhostIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = D31F5631168AEBDA009C881F /* GhostIcon.png */; };
 		D31F5650168AEBDA009C881F /* GhostIconSelected-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = D31F5632168AEBDA009C881F /* GhostIconSelected-hd.png */; };
@@ -300,6 +301,7 @@
 		CE0ECFBB178E0FA9005847F5 /* PhotoLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PhotoLayer.m; sourceTree = "<group>"; };
 		CE8ABF3E178F32DC00F1A745 /* Data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Data.h; sourceTree = "<group>"; };
 		CE8ABF3F178F32DC00F1A745 /* Data.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Data.m; sourceTree = "<group>"; };
+		CE8CA0C817909E9F00BF12EB /* wordbank.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = wordbank.plist; sourceTree = "<group>"; };
 		D31F5630168AEBDA009C881F /* GhostIcon-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "GhostIcon-hd.png"; sourceTree = "<group>"; };
 		D31F5631168AEBDA009C881F /* GhostIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GhostIcon.png; sourceTree = "<group>"; };
 		D31F5632168AEBDA009C881F /* GhostIconSelected-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "GhostIconSelected-hd.png"; sourceTree = "<group>"; };
@@ -1033,6 +1035,7 @@
 				D7EE48FE164888BA00B193A2 /* config.lua */,
 				D7F91EA5168004670079965F /* ghosty.otf */,
 				D7F91EA6168004670079965F /* Nexa Bold.otf */,
+				CE8CA0C817909E9F00BF12EB /* wordbank.plist */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1284,6 +1287,7 @@
 				5481430F16E7BAF100F117F0 /* send-button-inactive.png in Resources */,
 				5481431016E7BAF100F117F0 /* send-button-instate.png in Resources */,
 				5481431116E7BAF100F117F0 /* send-field-landscape.png in Resources */,
+				CE8CA0C917909E9F00BF12EB /* wordbank.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

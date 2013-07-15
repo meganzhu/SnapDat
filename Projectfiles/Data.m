@@ -2,15 +2,15 @@
 //  Data.m
 //  pic3
 //
-//  Created by user on 7/11/13.
-//
+//  Created by Megan Zhu on 7/11/13.
+//  NTS: dimensions of iphone: 320x480
 //
 
 #import "Data.h"
 
 @implementation Data
 
-@synthesize opponent, username, friendFullName, playerName, opponentName, promptForMe, promptForThem, myPic, theirPic;
+@synthesize opponent, username, friendFullName, playerName, opponentName, promptForMe, promptForThem, myPic, theirPic, user;
 
 static Data *sharedData = nil;
 

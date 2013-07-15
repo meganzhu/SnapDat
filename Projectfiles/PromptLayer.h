@@ -7,12 +7,13 @@
 //  made from brian chu's ghost template
 
 #import "StyledCCLayer.h"
+#import "Data.h"
 
 @interface PromptLayer: StyledCCLayer <UITextFieldDelegate>
 {
-    NSMutableArray *choices;
+    NSMutableArray* choices;
+    Data* data;
 }
-@property NSMutableArray* choices;
 
 -(CCScene*) sceneWithSelf;
 -(void) selected1;

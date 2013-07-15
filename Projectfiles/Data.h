@@ -10,7 +10,7 @@
 
 @interface Data : NSObject
 
-@property (nonatomic) NSMutableDictionary* game;
+@property (nonatomic) NSMutableDictionary* game, *user;
 @property (nonatomic) NSString *opponent, *username, *friendFullName, *playerName, *opponentName, *promptForMe, *promptForThem;
 @property (nonatomic) UIImage *myPic, *theirPic;
 @property (nonatomic) BOOL new;

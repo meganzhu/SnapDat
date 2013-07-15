@@ -7,8 +7,17 @@
 //
 
 #import "StyledCCLayer.h"
+#import "Data.h"
+#import <UIKit/UIKit.h>
 
-@interface PhotoLayer : StyledCCLayer
+@interface PhotoLayer : StyledCCLayer <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
+{
+    UIWindow *window;
+    Data* data;
+    CCControlButton* button;
+    UIViewController *vc;
+}
 -(CCScene*) sceneWithSelf;
+
 
 @end

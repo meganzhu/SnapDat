@@ -22,14 +22,14 @@
 @implementation GameLayer
 
 //return a scene with the layer added to it
--(CCScene*) sceneWithSelf
+-(CCScene*) sceneWithSelf //called after game (layer) is set up
 {
     CCScene* scene = [[self superclass] scene];
     [scene addChild: self];
     return scene;
 }
 
--(id) init
+-(id) init //happens automatically when we setup game?
 {
     self = [super init];
     data = [Data sharedData];
@@ -39,7 +39,7 @@
     return self;
 }
 
--(void) onEnter
+-(void) onEnter//happens automatically when we setup game?
 {
     if (inChat)
     {
@@ -115,7 +115,7 @@
 - (void)gotGame:(NSMutableDictionary*)g
 {
 	//Update game object and reload game
-	NSString *gameID = [NSString stringWithFormat:@"%@",[data.game objectForKey:@"gameid"]];
+	NSString *gameID = [NSString stringWithFormat:@"%@",[g objectForKey:@"gameid"]];
 	
 	//Prevent cheating by not reloading game if you challenged but haven't started the next round (since the server doesn't know about the challenge yet)
 	NSMutableDictionary *savedGame = [NSMutableDictionary dictionaryWithDictionary:[MGWU objectForKey:gameID]];
@@ -173,11 +173,9 @@
 			data.opponentName = [data.opponent stringByReplacingOccurrencesOfString:@"_" withString:@"."];
 			data.playerName = [[user objectForKey:@"username"] stringByReplacingOccurrencesOfString:@"_" withString:@"."];
 		}
+        [play setTitle:@"TAKE A PIC" forState: CCControlStateNormal];
         //INSERT LATER: show theirPic, theirPrompt (in gamedata)
-        
-		//go take a pic for their prompt
-        CCTransitionFlipX* transition = [CCTransitionFlipX transitionWithDuration:0.5f scene:[[PhotoLayer alloc] sceneWithSelf]];
-        [CCDirector.sharedDirector pushScene:transition];
+
     }
 }
 
@@ -207,21 +205,27 @@
 
 -(void) refresh
 {
-    [MGWU getMyInfoWithCallback:@selector(loadedUserInfo:) onTarget:self];
+    //If game object exists, reload the game
+	if (data.game)
+	{
+		[MGWU getGame:[[data.game objectForKey:@"gameid"] intValue] withCallback:@selector(gotGame:) onTarget:self];
+	}
 }
+
+
 
 -(void) play //go to guesslayer or photolayer.
 {
     StyledCCLayer *destination;
-    if (data.game) //if theres a game going on, time to take pic. QUESTION:if opponent just played, but this player just oppened app, data.game = nil, right? but there is a game????
-    {
+//    if (data.game) //if theres a game going on, time to take pic. QUESTION:if opponent just played, but this player just oppened app, data.game = nil, right? but there is a game????
+//    {
         //page flip/swivel transition
         destination = [[PhotoLayer alloc] init];
-    }
-    else //game just starting; start with prompt.
-    {
-        destination = [[PromptLayer alloc] init];
-    }
+//    }
+//    else //game just starting; start with prompt.
+//    {
+//        destination = [[PromptLayer alloc] init];
+//    }
     CCTransitionFlipX* transition = [CCTransitionFlipX transitionWithDuration:0.5f scene:[destination sceneWithSelf]];
     [CCDirector.sharedDirector pushScene:transition];
 }

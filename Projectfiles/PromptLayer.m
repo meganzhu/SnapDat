@@ -22,7 +22,6 @@
 #define numChoices 3
 
 @implementation PromptLayer
-@synthesize choices;
 
 //return a scene with the layer added to it
 -(CCScene*) sceneWithSelf
@@ -34,25 +33,33 @@
 
 -(id) init
 {
+    data = [Data sharedData];
     self = [super init];
     
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"wordbank" ofType:@"plist"];
-    NSMutableArray *wordbank = [NSArray arrayWithContentsOfFile:filePath];
-    choices = [NSMutableArray arrayWithCapacity:numChoices];
-    for (int i = 0; i < (int)choices.count; i++){
-        double randy = rand() % wordbank.count;
-        [choices addObject: [wordbank objectAtIndex:randy]];
-        [wordbank removeObjectAtIndex:randy];
+    NSDictionary* root = [NSDictionary dictionaryWithContentsOfFile:filePath];
+    NSMutableArray* wordbank = [NSMutableArray arrayWithArray:[root objectForKey:@"words"]];
+    choices = [NSMutableArray array];
+    for (int i = 0; i< numChoices; i++){
+        double randy = arc4random() % wordbank.count;
+        [choices addObject: [wordbank objectAtIndex:(int)randy]];
+        [wordbank removeObjectAtIndex:(int)randy];
     }
     //choices is now filled with 3 different words from the wordbank.
     
     //create menu with these 3 words
-    
-    CCMenuItem* word1 = [CCMenuItemFont itemWithString:(NSString*)choices[1] target:self selector:@selector(selected1:)];
-    CCMenuItem* word2 = [CCMenuItemFont itemWithString:(NSString*)choices[2] target:self selector:@selector(selected2:)];
-    CCMenuItem* word3 = [CCMenuItemFont itemWithString:(NSString*)choices[3] target:self selector:@selector(selected3:)];
+    CCLabelTTF *title1 = [CCLabelTTF labelWithString:@"Choose a word" fontName:@"Nexa Bold" fontSize:30.0f];
+    title1.position = ccp(160, 400);
+    CCLabelTTF *title2 = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"for %@", data.opponentName] fontName:@"Nexa Bold" fontSize:30.0f];
+    title2.position = ccp(160, 370);
+    CCMenuItem* word1 = [CCMenuItemFont itemWithString:(NSString*)choices[0] target:self selector:@selector(selected1)];
+    CCMenuItem* word2 = [CCMenuItemFont itemWithString:(NSString*)choices[1] target:self selector:@selector(selected2)];
+    CCMenuItem* word3 = [CCMenuItemFont itemWithString:(NSString*)choices[2] target:self selector:@selector(selected3)];
     CCMenu *menu = [CCMenu menuWithItems: word1, word2, word3, nil];
-    menu.position = ccp(160, 150);
+    menu.position = ccp(160, 200);
+    [menu alignItemsVerticallyWithPadding:20.0f];
+    [self addChild: title1];
+    [self addChild: title2];
     [self addChild: menu];
     
     return self;
@@ -60,34 +67,33 @@
 
 -(void) selected1
 {
-    NSString *word = choices[1];
+    NSString *word = choices[0];
     [self updateGameWithWord: word];
 }
 -(void) selected2
 {
-    NSString *word = choices[2];
+    NSString *word = choices[1];
     [self updateGameWithWord: word];
 }
 -(void) selected3
 {
-    NSString* word = choices[3];
+    NSString* word = choices[2];
     [self updateGameWithWord: word];
 }
 
 -(void) updateGameWithWord: (NSString*) word
 {
-    Data* data = [Data sharedData];
+    //clear screen of menu & title
+    [self removeAllChildren];
+    
     //display word chosen
     CGSize winSize = [[CCDirector sharedDirector] winSize];
     
-    CCLabelTTF* youChose = [CCLabelTTF labelWithString:@"You chose" fontName: @"Nexa Bold" fontSize: 20];
-    CCLabelTTF* choice = [CCLabelTTF labelWithString:word fontName: @"Nexa Bold" fontSize: 40];
+    CCLabelTTF* youChose = [CCLabelTTF labelWithString:@"You chose" fontName: @"Nexa Bold" fontSize: 30];
+    CCLabelTTF* choice = [CCLabelTTF labelWithString:word fontName: @"Nexa Bold" fontSize: 45];
     
-    youChose.position = ccp(winSize.height/2 + 50, winSize.width/2);
-    choice.position = ccp(winSize.height/2 -50, winSize.width/2);
-    
-    youChose.color = ccc3(255, 255, 255);
-    choice.color = ccc3(255, 255, 255);
+    youChose.position = ccp(winSize.width/2, winSize.height/2+20);
+    choice.position = ccp(winSize.width/2, winSize.height/2-20);
     
     [self addChild:youChose];
     [self addChild:choice];
@@ -107,7 +113,7 @@
                  @"prompt" : @""};
 //                 @"pic"    : nil};
         moveNumber = 0;
-        gameState = @"Started";
+        gameState = @"started";
         gameData = @{//@"theirPic"   : nil,
                      @"theirPrompt": @"",
                      @"promptForMe": data.promptForThem}; //Keys in terms of next person for convenience
@@ -131,6 +137,11 @@
     }
     [MGWU move:move withMoveNumber:moveNumber forGame:gameid withGameState:gameState withGameData:gameData againstPlayer:opponent withPushNotificationMessage:pushMessage withCallback:@selector(moveCompleted:) onTarget:self];
     
+}
+
+-(void) moveCompleted: (NSMutableDictionary*) game
+{
+    data.game = game;
 }
 
 @end
