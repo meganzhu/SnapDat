@@ -69,6 +69,7 @@
 		CE0ECFBC178E0FA9005847F5 /* PhotoLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CE0ECFBB178E0FA9005847F5 /* PhotoLayer.m */; };
 		CE8ABF40178F32DC00F1A745 /* Data.m in Sources */ = {isa = PBXBuildFile; fileRef = CE8ABF3F178F32DC00F1A745 /* Data.m */; };
 		CE8CA0C917909E9F00BF12EB /* wordbank.plist in Resources */ = {isa = PBXBuildFile; fileRef = CE8CA0C817909E9F00BF12EB /* wordbank.plist */; };
+		CEDB787E179753170078634E /* HistoryLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CEDB787D179753160078634E /* HistoryLayer.m */; };
 		D31F564E168AEBDA009C881F /* GhostIcon-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = D31F5630168AEBDA009C881F /* GhostIcon-hd.png */; };
 		D31F564F168AEBDA009C881F /* GhostIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = D31F5631168AEBDA009C881F /* GhostIcon.png */; };
 		D31F5650168AEBDA009C881F /* GhostIconSelected-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = D31F5632168AEBDA009C881F /* GhostIconSelected-hd.png */; };
@@ -302,6 +303,8 @@
 		CE8ABF3E178F32DC00F1A745 /* Data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Data.h; sourceTree = "<group>"; };
 		CE8ABF3F178F32DC00F1A745 /* Data.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Data.m; sourceTree = "<group>"; };
 		CE8CA0C817909E9F00BF12EB /* wordbank.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = wordbank.plist; sourceTree = "<group>"; };
+		CEDB787C179753150078634E /* HistoryLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HistoryLayer.h; sourceTree = "<group>"; };
+		CEDB787D179753160078634E /* HistoryLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HistoryLayer.m; sourceTree = "<group>"; };
 		D31F5630168AEBDA009C881F /* GhostIcon-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "GhostIcon-hd.png"; sourceTree = "<group>"; };
 		D31F5631168AEBDA009C881F /* GhostIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GhostIcon.png; sourceTree = "<group>"; };
 		D31F5632168AEBDA009C881F /* GhostIconSelected-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "GhostIconSelected-hd.png"; sourceTree = "<group>"; };
@@ -988,10 +991,10 @@
 				D7D7F4CF16545C8D00E203FE /* ChatLayer.m */,
 				D7C25A741651B2AE0044DCD2 /* GameLayer.h */,
 				D7C25A751651B2AE0044DCD2 /* GameLayer.m */,
-				D7558ED3169CE7A500834BD2 /* PromptLayer.h */,
-				D7558ED4169CE7A500834BD2 /* PromptLayer.m */,
 				CE8ABF3E178F32DC00F1A745 /* Data.h */,
 				CE8ABF3F178F32DC00F1A745 /* Data.m */,
+				D7558ED3169CE7A500834BD2 /* PromptLayer.h */,
+				D7558ED4169CE7A500834BD2 /* PromptLayer.m */,
 				D7A83E3616A628F600F3C1B0 /* PopupLayer.h */,
 				D7A83E3716A628F600F3C1B0 /* PopupLayer.m */,
 				D3503CF316A4379700CD1C9F /* DefinitionViewController.h */,
@@ -1000,6 +1003,8 @@
 				D7E44CFA1649D0D300DC7366 /* TableLayer.m */,
 				CE0ECFBA178E0FA9005847F5 /* PhotoLayer.h */,
 				CE0ECFBB178E0FA9005847F5 /* PhotoLayer.m */,
+				CEDB787C179753150078634E /* HistoryLayer.h */,
+				CEDB787D179753160078634E /* HistoryLayer.m */,
 				D7710A2516813A0D008276FA /* StyledCCLayer.h */,
 				D7710A2616813A0D008276FA /* StyledCCLayer.m */,
 				D7D7F4D21654675600E203FE /* BadgedCCMenuItemSprite.h */,
@@ -1344,6 +1349,7 @@
 				D7694AD316A8EE4D00F76C3C /* CCRoundedTextureCache.m in Sources */,
 				CE0ECFBC178E0FA9005847F5 /* PhotoLayer.m in Sources */,
 				CE8ABF40178F32DC00F1A745 /* Data.m in Sources */,
+				CEDB787E179753170078634E /* HistoryLayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -90,7 +90,7 @@ static InterfaceLayer* sharedInstance; //allows access to interface layer from a
         inviteSelected.position = ccpAdd(inviteSelected.position, ccp(4,-5)); //hack to get everything to line up
         inviteTab =[BadgedCCMenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"PersonIcon.png"] selectedSprite:inviteSelected target:self selector:@selector(inviteClick)];
 
-        gamesTab.isEnabled=NO; //since we start out at the GamesTable layer, we disable the ability to click the Games tab
+        gamesTab.isEnabled=NO; //since we start out at the GamesTable layer, we di	sable the ability to click the Games tab
         disabledItem=gamesTab;
         
         CCMenuNoSwallow* tabMenu = [CCMenuNoSwallow menuWithItems:gamesTab, playersTab, inviteTab, nil];
@@ -169,6 +169,8 @@ static InterfaceLayer* sharedInstance; //allows access to interface layer from a
 	games = [userInfo objectForKey:@"games"];
 	players = [userInfo objectForKey:@"friends"];
 	nonPlayers = [MGWU friendsToInvite];
+    Data* data = [Data sharedData];
+    data.username = [user objectForKey: @"username"];
 	
 	NSArray *playingFriends = [NSArray arrayWithArray:players];
 	

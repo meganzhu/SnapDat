@@ -9,6 +9,8 @@
 #import "CCLayer.h"
 
 @class CCControlButton;
+@class GameLayer;
+
 @interface StyledCCLayer : CCLayer
 {
 //properties that are re-declared here are exposed to subclasses
@@ -21,6 +23,7 @@
 }
 @property CCSprite* titleBar;
 @property CCLabelTTF* title;
+@property GameLayer *gameLayer;
 
 +(id) scene;
 +(CCSprite*) bgImage;

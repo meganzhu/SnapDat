@@ -26,6 +26,7 @@
     CCControlButton* play;
 	CCControlButton* re;
     CCControlButton* moreGames;
+    CCControlButton* history;
     
     //Variable to control reloading of game
 	BOOL inChat;
@@ -38,7 +39,8 @@
     
 }
 
-
+-(void) moveCompleted: (NSMutableDictionary*) game;
+-(void) updateGameWithWord: (NSString*) word;
 -(CCScene*) sceneWithSelf;
 -(void) setupGame;
 - (void)loadGame;

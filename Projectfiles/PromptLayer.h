@@ -15,6 +15,7 @@
     Data* data;
 }
 
+
 -(CCScene*) sceneWithSelf;
 -(void) selected1;
 -(void) selected2;

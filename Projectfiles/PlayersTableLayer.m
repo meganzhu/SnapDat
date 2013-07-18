@@ -272,7 +272,7 @@
 	//If player doesn't exist (no player of that username), do nothing
 	if (!p)
 		return;
-    
+
 	//Start game with player
     GameLayer* gameLayer = [[GameLayer alloc] init];
     data.opponent = [p objectForKey:@"username"];
@@ -286,6 +286,9 @@
 
 -(void)slideRightTransitionToGame: (GameLayer*) gameLayer
 {
+    //starting a game, so game is nil.
+    Data* data = [Data sharedData];
+    data.game = nil;
     [gameLayer setupGame];
     
     //slide in from the right

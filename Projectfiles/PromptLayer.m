@@ -16,8 +16,10 @@
  */
 
 #import "PromptLayer.h"
+#import "CCDirector+PopTransition.h"
 #import "CCControlButton.h"
 #import "Data.h"
+#import "GameLayer.h"
 #include <stdlib.h>
 #define numChoices 3
 
@@ -36,6 +38,7 @@
     data = [Data sharedData];
     self = [super init];
     
+    data.inPrompt = YES;
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"wordbank" ofType:@"plist"];
     NSDictionary* root = [NSDictionary dictionaryWithContentsOfFile:filePath];
     NSMutableArray* wordbank = [NSMutableArray arrayWithArray:[root objectForKey:@"words"]];
@@ -68,80 +71,25 @@
 -(void) selected1
 {
     NSString *word = choices[0];
-    [self updateGameWithWord: word];
+    [super.gameLayer updateGameWithWord: word];
 }
 -(void) selected2
 {
     NSString *word = choices[1];
-    [self updateGameWithWord: word];
+    [super.gameLayer updateGameWithWord: word];
 }
 -(void) selected3
 {
     NSString* word = choices[2];
-    [self updateGameWithWord: word];
+    [super.gameLayer updateGameWithWord: word];
 }
 
--(void) updateGameWithWord: (NSString*) word
-{
-    //clear screen of menu & title
-    [self removeAllChildren];
-    
-    //display word chosen
-    CGSize winSize = [[CCDirector sharedDirector] winSize];
-    
-    CCLabelTTF* youChose = [CCLabelTTF labelWithString:@"You chose" fontName: @"Nexa Bold" fontSize: 30];
-    CCLabelTTF* choice = [CCLabelTTF labelWithString:word fontName: @"Nexa Bold" fontSize: 45];
-    
-    youChose.position = ccp(winSize.width/2, winSize.height/2+20);
-    choice.position = ccp(winSize.width/2, winSize.height/2-20);
-    
-    [self addChild:youChose];
-    [self addChild:choice];
-    
-    
-    //send over word and pic/word set in gamedata
-    
-    NSMutableDictionary* move;
-    int moveNumber;
-    NSString* gameState;
-    NSMutableDictionary* gameData;
-    NSString* opponent = data.opponent;
-    NSString* pushMessage;
-    NSNumber* gameid;
-    if (data.new){
-        move = @{@"player" : data.username,
-                 @"prompt" : @""};
-//                 @"pic"    : nil};
-        moveNumber = 0;
-        gameState = @"started";
-        gameData = @{//@"theirPic"   : nil,
-                     @"theirPrompt": @"",
-                     @"promptForMe": data.promptForThem}; //Keys in terms of next person for convenience
-        pushMessage = [NSString stringWithFormat:@"%@ challenges you to a game!", data.playerName];
-        gameid = @0;
-        [MGWU logEvent: @"began_game" withParams: @{@"word":word}];
-    }
-    else
-    {
-        move = @{@"player" : data.username,
-                 @"prompt" : data.promptForMe,
-                 @"pic"    : data.myPic};
-        moveNumber = [[data.game objectForKey: @"moveCount"] intValue] + 1;
-        gameState = @"inprogress";
-        gameData = @{@"theirPic"    : data.myPic,
-                     @"theirPrompt" : data.promptForMe,
-                     @"promptForMe" : data.promptForThem};
-        gameid = [data.game objectForKey:@"gameid"];
-        pushMessage = [NSString stringWithFormat:@"%@ took a picture of something %@ for you!", data.playerName, data.promptForMe];
-            
-    }
-    [MGWU move:move withMoveNumber:moveNumber forGame:gameid withGameState:gameState withGameData:gameData againstPlayer:opponent withPushNotificationMessage:pushMessage withCallback:@selector(moveCompleted:) onTarget:self];
-    
-}
 
--(void) moveCompleted: (NSMutableDictionary*) game
+
+-(void) back
 {
-    data.game = game;
+    //pop scene, slide in new scene from the left
+    [CCDirector.sharedDirector popSceneWithTransition:[CCTransitionSlideInL class] duration:0.25f];
 }
 
 @end

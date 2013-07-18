@@ -8,11 +8,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Projectfiles/PromptLayer.m"
-         timestampString = "395359137.512652"
+         timestampString = "395781662.354494"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "57"
-         endingLineNumber = "57"
+         startingLineNumber = "60"
+         endingLineNumber = "60"
          landmarkName = "-init"
          landmarkType = "5">
       </FileBreakpoint>
@@ -21,24 +21,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Projectfiles/GameLayer.m"
-         timestampString = "395345122.606769"
+         timestampString = "395797784.631734"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "20"
-         endingLineNumber = "20">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "Projectfiles/PromptLayer.m"
-         timestampString = "395359137.512652"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "85"
-         endingLineNumber = "85"
-         landmarkName = "-updateGameWithWord:"
-         landmarkType = "5">
+         startingLineNumber = "29"
+         endingLineNumber = "29">
       </FileBreakpoint>
    </FileBreakpoints>
 </Bucket>
