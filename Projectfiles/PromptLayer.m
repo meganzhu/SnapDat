@@ -20,6 +20,7 @@
 #import "CCControlButton.h"
 #import "Data.h"
 #import "GameLayer.h"
+#import "SimpleAudioEngine.h"
 #include <stdlib.h>
 #define numChoices 3
 
@@ -37,6 +38,9 @@
 {
     data = [Data sharedData];
     self = [super init];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"popForward.wav"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"popBack.wav"];
+    
     
     data.inPrompt = YES;
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"wordbank" ofType:@"plist"];
@@ -52,34 +56,44 @@
     
     //create menu with these 3 words
     CCLabelTTF *title1 = [CCLabelTTF labelWithString:@"Choose a word" fontName:@"Nexa Bold" fontSize:30.0f];
-    title1.position = ccp(160, 400);
+
     CCLabelTTF *title2 = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"for %@", data.opponentName] fontName:@"Nexa Bold" fontSize:30.0f];
+
+    CCControlButton* word1 = [self standardButtonWithTitle:(NSString*)choices[0] font:@"Nexa Bold" fontSize:25 target:self selector:@selector(selected1) preferredSize:CGSizeMake(200, 70)];
+    CCControlButton* word2 = [self standardButtonWithTitle:(NSString*)choices[1] font:@"Nexa Bold" fontSize:25 target:self selector:@selector(selected2) preferredSize:CGSizeMake(200, 70)];
+    CCControlButton* word3 = [self standardButtonWithTitle:(NSString*)choices[2] font:@"Nexa Bold" fontSize:25 target:self selector:@selector(selected3) preferredSize:CGSizeMake(200, 70)];
+    
+    title1.position = ccp(160, 400);
     title2.position = ccp(160, 370);
-    CCMenuItem* word1 = [CCMenuItemFont itemWithString:(NSString*)choices[0] target:self selector:@selector(selected1)];
-    CCMenuItem* word2 = [CCMenuItemFont itemWithString:(NSString*)choices[1] target:self selector:@selector(selected2)];
-    CCMenuItem* word3 = [CCMenuItemFont itemWithString:(NSString*)choices[2] target:self selector:@selector(selected3)];
-    CCMenu *menu = [CCMenu menuWithItems: word1, word2, word3, nil];
-    menu.position = ccp(160, 200);
-    [menu alignItemsVerticallyWithPadding:20.0f];
+    word1.position = ccp(160, 280);
+    word2.position = ccp(160, 220);
+    word3.position = ccp(160, 160);
+    
+    
     [self addChild: title1];
     [self addChild: title2];
-    [self addChild: menu];
+    [self addChild: word1];
+    [self addChild: word2];
+    [self addChild: word3];
     
     return self;
 }
 
 -(void) selected1
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
     NSString *word = choices[0];
     [super.gameLayer updateGameWithWord: word];
 }
 -(void) selected2
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
     NSString *word = choices[1];
     [super.gameLayer updateGameWithWord: word];
 }
 -(void) selected3
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
     NSString* word = choices[2];
     [super.gameLayer updateGameWithWord: word];
 }
@@ -88,6 +102,7 @@
 
 -(void) back
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popBack.wav"];
     //pop scene, slide in new scene from the left
     [CCDirector.sharedDirector popSceneWithTransition:[CCTransitionSlideInL class] duration:0.25f];
 }

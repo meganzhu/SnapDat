@@ -16,7 +16,7 @@
 #import "BadgedCCMenuItemSprite.h"
 #import "AppDelegate.h"
 #import "CCMenuNoSwallow.h"
-
+#import "SimpleAudioEngine.h"
 
 @interface InterfaceLayer ()
 @end
@@ -53,6 +53,8 @@ static InterfaceLayer* sharedInstance; //allows access to interface layer from a
 	if ((self = [super init]))
 	{
         CCDirector* director = CCDirector.sharedDirector;
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"popForward.wav"];
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"popBack.wav"];
         sharedInstance = self;
         
         //Top menu bar (methods are implemented in StyledCCLayer)
@@ -119,6 +121,7 @@ static InterfaceLayer* sharedInstance; //allows access to interface layer from a
 //called when back arrow is pressed in nav bar
 -(void) back
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popBack.wav"];
     //slide in scene from the left
     CCTransitionSlideInR* transition = [CCTransitionSlideInL transitionWithDuration:0.25f scene:[StartLayer scene]];
     [CCDirector.sharedDirector replaceScene:transition];
@@ -360,6 +363,7 @@ static InterfaceLayer* sharedInstance; //allows access to interface layer from a
 //Games tab button clicked (first tab)
 -(void) gamesClick
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
     [self tableCleanup];
     title.string = @"GAMES"; //nav bar title
     
@@ -384,6 +388,7 @@ static InterfaceLayer* sharedInstance; //allows access to interface layer from a
 //Players tab button clicked (second tab)
 -(void) playersClick
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
     [self tableCleanup];
     title.string = @"NEW GAME";
     if (playersTableLayer)
@@ -404,6 +409,7 @@ static InterfaceLayer* sharedInstance; //allows access to interface layer from a
 //Invite tab button clicked (third tab)
 -(void) inviteClick
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
     [self tableCleanup];
     title.string = @"INVITE";
     if (inviteTableLayer)

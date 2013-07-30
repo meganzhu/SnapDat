@@ -10,6 +10,7 @@
 #import "InterfaceLayer.h"
 #import "CCControlButton.h"
 #import "TutorialLayer.h"
+#import "SimpleAudioEngine.h"
 
 @interface StartLayer ()
 @end
@@ -21,6 +22,7 @@
 	if ((self = [super init]))
 	{
 		inGame=NO;
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"popForward.wav"];
         CGSize screenSize = CCDirector.sharedDirector.winSize;
         
         //Ghost logo
@@ -67,6 +69,7 @@
 -(void)play
 {
     //slide in scene from the right
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
     CCTransitionSlideInR* transition = [CCTransitionSlideInR transitionWithDuration:0.25f scene:[InterfaceLayer scene]];
     [CCDirector.sharedDirector replaceScene:transition];
 }
@@ -75,12 +78,14 @@
 {
 
     //slide in scene from the right
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
     CCTransitionSlideInR* transition = [CCTransitionSlideInR transitionWithDuration:0.25f scene:[TutorialLayer scene]];
     [CCDirector.sharedDirector replaceScene:transition];
 }
 
 - (void)moreGames
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
 	[MGWU displayCrossPromo];
 }
 

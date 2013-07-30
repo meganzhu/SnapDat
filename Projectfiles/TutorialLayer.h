@@ -22,7 +22,7 @@
 -(CCScene*) sceneWithSelf;
 -(void) next;
 -(void) setUpText;
--(void) setUpKeyboard;
--(void) setUpScore;
+-(void) setUpPrompts;
+-(void) setUpPhoto;
 
 @end

@@ -26,7 +26,7 @@ NSMutableArray *words;
 	CCLOG(@"ARC is either not available or not enabled");
 #endif
     
-	[MGWU loadMGWU:@"spooky"];
+	[MGWU loadMGWU:@"thisisaghettoassgameandeveryoneshouldplayit"];
 	
     [MGWU dark];
     
@@ -36,6 +36,11 @@ NSMutableArray *words;
 	
 	//To flag whether push notifications are disabled
 	noPush = NO; //not disabled
+    
+    //In Kobold+iOS 5 the call to initializationComplete occurs after applicationDidBecomeActive
+	//This causes a problem in the mgwuSDK, so here is dirty hack to fix it
+	if ([[[UIDevice currentDevice] systemVersion] floatValue] < 6.0)
+		[[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
     
 }
 

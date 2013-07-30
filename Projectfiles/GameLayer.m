@@ -28,6 +28,7 @@
 #import "Data.h"
 #import "PhotoLayer.h"
 #import "HistoryLayer.h"
+#import "SimpleAudioEngine.h"
 
 @implementation GameLayer
 
@@ -39,8 +40,10 @@
     return scene;
 }
 
--(id) init //happens automatically when we setup game?
+-(id) init 
 {
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"popForward.wav"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"popBack.wav"];
     self = [super init];
     data = [Data sharedData];
     inChat = NO;
@@ -72,7 +75,8 @@
     
     //Top menu bar
     NSString* title = @"Games";
-    if ([data.game objectForKey:@"turn"] != data.username && data.game){
+    if (data.game && [data.game objectForKey:@"turn"] != data.username)
+    {
         title = @"Waiting..";
     }
     [self addNavBarWithTitle: title];
@@ -176,10 +180,11 @@
     else //game exists already (either my turn, or just finished my turn.)
     {
         data.new = NO;
-        NSString* gameState = [data.game objectForKey:@"gamestate"];
+//        NSString* gameState = [data.game objectForKey:@"gamestate"]; no need bc games are never finished ;P
         NSString* turn = [data.game objectForKey: @"turn"];
         NSArray* players = [data.game objectForKey:@"players"];
-		if ([[players objectAtIndex:0] isEqualToString:[user objectForKey:@"username"]])
+        data.username = [user objectForKey: @"username"];
+		if ([[players objectAtIndex:0] isEqualToString:data.username])
 			data.opponent = [players objectAtIndex:1];
 		else
 			data.opponent = [players objectAtIndex:0];
@@ -195,17 +200,20 @@
 			data.opponentName = [data.opponent stringByReplacingOccurrencesOfString:@"_" withString:@"."];
 			data.playerName = [[user objectForKey:@"username"] stringByReplacingOccurrencesOfString:@"_" withString:@"."];
 		}
-        
-        if ([data.game objectForKey:@"turn"] == data.username) //if start of my turn
+
+        if ([turn isEqualToString: data.username]) //if start of my turn, show what friend did
         {                    
-            NSDictionary* gameData = [data.game objectForKey: @"gameData"];
+            NSDictionary* gameData = [data.game objectForKey: @"gamedata"];
+            
+            if ([gameData objectForKey:@"theirPic"])
+            {
             //show theirPic
             UIImage* theirPic = [gameData objectForKey: @"theirPic"];
             CCSprite* pic = [[CCSprite alloc] initWithCGImage: [theirPic CGImage] key:@"pic"];
             pic.scale = 0.5f;
             pic.position = ccp(160, 240);
             [self addChild: pic];
-        
+            }
             //show theirPrompt
             NSString* word = [gameData objectForKey:@"theirPrompt"];
             CCLabelTTF* theirPrompt = [CCLabelTTF labelWithString:word fontName:@"Nexa Bold" fontSize:12];
@@ -213,7 +221,7 @@
             [self addChild: theirPrompt];
             
             play.position = ccp(160, 70);
-            [play setTitle:@"TAKE A PIC" forState: CCControlStateNormal];
+            [play setTitle:@"YOUR TURN!" forState: CCControlStateNormal];
             re.visible = NO;
             moreGames.visible = NO;
             play.visible = YES;
@@ -252,6 +260,7 @@
 
 -(void) back
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popBack.wav"];
     //pop scene, slide in new scene from the left
     [CCDirector.sharedDirector popSceneWithTransition:[CCTransitionSlideInL class] duration:0.25f];
 }
@@ -259,6 +268,7 @@
 //Go to chat layer
 -(void) chat
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
     ChatLayer* chatLayer = [[ChatLayer alloc] initWithFriendID:data.opponent];
     inChat = YES;
     
@@ -269,6 +279,7 @@
 
 - (void)moreGames:(id)sender
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
 	[MGWU displayCrossPromo];
 }
 
@@ -278,6 +289,7 @@
     //If game object exists, reload the game
 	if (data.game)
 	{
+        [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
 		[MGWU getGame:[[data.game objectForKey:@"gameid"] intValue] withCallback:@selector(gotGame:) onTarget:self];
 	}
 }
@@ -286,6 +298,7 @@
 
 -(void) play //go to promptlayer or photolayer.
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"start.wav"];
     StyledCCLayer *destination;
     if (data.game) //if theres a game going on, time to take pic. QUESTION:if opponent just played, but this player just oppened app, data.game = nil, right? but there is a game????
     {
@@ -303,6 +316,7 @@
 
 -(void) history //go view history
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
     HistoryLayer* historyLayer = [[HistoryLayer alloc] init];
     CCTransitionFlipX* transition = [CCTransitionFlipX transitionWithDuration:0.5f scene:[historyLayer sceneWithSelf]];
     [CCDirector.sharedDirector pushScene:transition];
@@ -338,8 +352,8 @@
     if (data.new){
         NSString* player = data.username;
         move = [NSMutableDictionary dictionaryWithDictionary:
-                @{@"player" : data.username,
-                @"prompt" : @""}];
+                @{@"player" : data.username,}];
+        //        @"prompt" : @""}];
         //                 @"pic"    : nil};
         moveNumber = 1;
         gameState = @"started";

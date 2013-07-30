@@ -11,6 +11,7 @@
 #import "BadgedCCMenuItemSprite.h"
 #import "AppDelegate.h"
 #import "CCMenuNoSwallow.h"
+#import "SimpleAudioEngine.h"
 
 #define INVITE_SECTIONS 3
 
@@ -20,6 +21,8 @@
 
 -(void) setupWithTabBarHeight: (float) tabBarHeightIn titleBarHeight: (float) titleBarHeightIn
 {
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"popForward.wav"];
+    
     //set up references and properties
     tabBarHeight=tabBarHeightIn;
     interfaceLayer=[InterfaceLayer sharedInstance];
@@ -200,6 +203,7 @@
 
 -(void) cellClicked: (CCMenuItem*) itemClicked
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
     Data* data = [Data sharedData];
     GameLayer* gameLayer = [[GameLayer alloc] init];
     int i = itemClicked.tag;

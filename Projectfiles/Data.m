@@ -10,7 +10,7 @@
 
 @implementation Data
 
-@synthesize opponent, username, friendFullName, playerName, opponentName, promptForMe, promptForThem, myPic, theirPic, user, games, inPrompt;
+@synthesize opponent, username, friendFullName, playerName, opponentName, promptForMe, promptForThem, myPic, theirPic, user, games, inPrompt, isPrePhotoTesting;
 
 static Data *sharedData = nil;
 

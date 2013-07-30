@@ -10,6 +10,7 @@
 #import "AppDelegate.h"
 #import "CCControlExtension.h"
 #import "CCDirector+PopTransition.h"
+#import "SimpleAudioEngine.h"
 
 @implementation ChatLayer
 @synthesize friendID;
@@ -26,6 +27,8 @@
 -(id) initWithFriendID: (NSString*) frID
 {
     self = [super init];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"popForward.wav"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"popBack.wav"];
     
     friendID=frID;
     transcript = [NSMutableArray array]; //load chat messages
@@ -221,6 +224,7 @@
 //called when back arrow is pressed in nav bar
 -(void) back
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popBack.wav"];
     //pop scene, slide in new scene from the left
     [CCDirector.sharedDirector popSceneWithTransition:[CCTransitionSlideInL class] duration:0.25f];
 }
@@ -228,6 +232,7 @@
 - (void)refresh
 {
 	//Hide keyboard then reload chat
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
 	[message resignFirstResponder];
 	[MGWU getMessagesWithFriend:friendID andCallback:@selector(reload:) onTarget:self];
 }

@@ -14,7 +14,7 @@
 @property (nonatomic) NSString *opponent, *username, *friendFullName, *playerName, *opponentName, *promptForMe, *promptForThem;
 @property (nonatomic) NSArray *games;
 @property (nonatomic) UIImage *myPic, *theirPic;
-@property (nonatomic) BOOL new, inPrompt;
+@property (nonatomic) BOOL new, inPrompt, isPrePhotoTesting;
 
 +(Data*) sharedData;
 @end

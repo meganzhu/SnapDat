@@ -9,6 +9,7 @@
 #import "HistoryLayer.h"
 #import "CGPointExtension.h"
 #import "CCDirector+PopTransition.h"
+#import "SimpleAudioEngine.h"
 
 @implementation HistoryLayer
 
@@ -40,7 +41,7 @@
 -(void) displayMove: (NSDictionary*) move at: (CGPoint) loc
 {
     NSString* moveWord = [move objectForKey: @"prompt"];
-    if (![moveWord isEqual: @""]) //if not first turn, in which we have no prompt or pic
+    if (moveWord) //if not first turn, in which we have no prompt or pic
     {
         CCLabelTTF* word = [CCLabelTTF labelWithString:moveWord fontName:@"Nexa Bold" fontSize:20];
         word.position = ccp(loc.x, loc.y+90);
@@ -56,6 +57,7 @@
 
 -(void) back
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popBack.wav"];
     //pop scene, slide in new scene from the left
     [CCDirector.sharedDirector popSceneWithTransition:[CCTransitionSlideInL class] duration:0.25f];
 }
