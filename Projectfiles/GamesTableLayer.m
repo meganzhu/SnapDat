@@ -130,12 +130,12 @@
         {
             arrayIndex -= indexThresholdGamesTheirTurn;
             gameData = [gamesCompleted objectAtIndex:arrayIndex];
-            action = [[[[gameData objectForKey:@"gamedata"] objectForKey:[user objectForKey:@"username"]] uppercaseString] stringByReplacingOccurrencesOfString:@" " withString:@""];
-            
-            while ([action length] < 5)
-            {
-                action = [action stringByAppendingString:@">"];
-            }
+//            action = [[[[gameData objectForKey:@"gamedata"] objectForKey:[user objectForKey:@"username"]] uppercaseString] stringByReplacingOccurrencesOfString:@" " withString:@""];
+//            
+//            while ([action length] < 5)
+//            {
+//                action = [action stringByAppendingString:@">"];
+//            }
         }
         
         //Set name as friendName (if you're facebook friends) or username

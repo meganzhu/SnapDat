@@ -22,32 +22,35 @@
 }
 
 -(id) init //set up view controller and take pic button
-{
-    data = [Data sharedData];
-    
+{    
     if(self = [super init])
     {
         data = [Data sharedData];
         data.isPrePhotoTesting = TRUE;
-        if (data.isPrePhotoTesting == TRUE){ //if not ready to take photos, ditch this; time to choose prompt
-            data.myPic = nil;
-            StyledCCLayer * promptLayer = [[PromptLayer alloc] init];
-            [CCDirector.sharedDirector popScene];
-            CCTransitionFlipX* transition = [CCTransitionFlipX transitionWithDuration:0.5f scene:[promptLayer sceneWithSelf]];
-            [CCDirector.sharedDirector pushScene:transition];
 
-        }
         vc = [[[UIApplication sharedApplication] keyWindow] rootViewController];
         NSString* word = [[data.game objectForKey: @"gamedata"] objectForKey: @"promptForMe"];
         NSString* prompt = [NSString stringWithFormat:@"%@ sent you", data.opponentName];
-        CCLabelTTF *promptLabel = [CCLabelTTF labelWithString:prompt dimensions:CGSizeMake(280, 80) hAlignment:kCCTextAlignmentCenter fontName:@"Nexa Bold" fontSize:20];
-        CCLabelTTF *wordLabel = [CCLabelTTF labelWithString: word dimensions: CGSizeMake(280, 80) hAlignment: kCCTextAlignmentCenter fontName: @"Nexa Bold" fontSize: 40];
+        CCLabelTTF *promptLabel = [CCLabelTTF labelWithString:prompt dimensions:CGSizeMake(280, 80) hAlignment:kCCTextAlignmentCenter fontName:@"Nexa Bold" fontSize:25];
+        CCLabelTTF *wordLabel = [CCLabelTTF labelWithString: word dimensions: CGSizeMake(280, 80) hAlignment: kCCTextAlignmentCenter fontName: @"Nexa Bold" fontSize:40];
         button = [self standardButtonWithTitle:[NSString stringWithFormat:@"Something %@", prompt] font:@"Nexa Bold" fontSize:40 target:self selector:@selector(takePic) preferredSize:CGSizeMake(300, 61)];
+
+        
+        if (data.isPrePhotoTesting == TRUE) //if not ready to take photos, button to go to prompt instead.
+        {
+            button = [self standardButtonWithTitle:@"JKnophoto" font:@"Nexa Bold" fontSize:40 target:self selector:@selector(toPromptLayer) preferredSize:CGSizeMake(300, 61)];
+        }
+        promptLabel.position = ccp(160, 380);
+        wordLabel.position = ccp(160, 330);
         button.position = ccp(160,92);
+        
+        [self addChild: promptLabel];
+        [self addChild: wordLabel];
         [self addChild: button];
     }
     return self;
 }
+
 -(void) takePic
 {
 
@@ -56,7 +59,7 @@
     UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];
     
     // Set source to the camera
-    imagePicker.sourceType =  UIImagePickerControllerSourceTypePhotoLibrary; //sourceTypeCamera on phone.
+    imagePicker.sourceType =  UIImagePickerControllerSourceTypeCamera; //sourceTypeCamera on phone.
     
     // Delegate is self
     imagePicker.delegate = self;
@@ -84,13 +87,18 @@
     
 //	[picker release];
     
-    //after taken pic, go to promptLayer
+    [self toPromptLayer];
+}
+                                                                                                                             
+- (void) toPromptLayer
+{
     StyledCCLayer * promptLayer = [[PromptLayer alloc] init];
+    promptLayer.gameLayer = self.gameLayer;
     [CCDirector.sharedDirector popScene];
     CCTransitionFlipX* transition = [CCTransitionFlipX transitionWithDuration:0.5f scene:[promptLayer sceneWithSelf]];
     [CCDirector.sharedDirector pushScene:transition];
 }
-
+                                                                                                                             
 - (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo
 {
     UIAlertView *alert;

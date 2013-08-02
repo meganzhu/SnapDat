@@ -131,20 +131,20 @@ NSMutableArray *words;
 	[MGWU gotLocalPush:notification];
 }
 
-//- (void)applicationDidEnterBackground:(UIApplication *)application
-//{
-//	// Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-//	// If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-//    CCScene* runningScene = CCDirector.sharedDirector.runningScene;
+- (void)applicationDidEnterBackground:(UIApplication *)application
+{
+	// Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
+	// If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    CCScene* runningScene = CCDirector.sharedDirector.runningScene;
 //    for (CCNode* child in runningScene.children)
 //        if ([child isMemberOfClass: [GuessLayer class]])
 //        {
 //            //if you're in a guess, treat it as a challenge (to prevent cheating)
 //			[(GuessLayer*)child challenge:nil];
 //        }
-//	
-//	[director stopAnimation];
-//}
+	
+	[director stopAnimation];
+}
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {

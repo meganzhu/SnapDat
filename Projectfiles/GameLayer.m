@@ -69,13 +69,14 @@
     [super onEnter];
 }
 
--(void) setupGame //player & invite table layer brings us here first.
+-(void) setupGame
 {
     CGSize screenSize = CCDirector.sharedDirector.winSize;
+    [self removeAllChildren];
     
     //Top menu bar
     NSString* title = @"Games";
-    if (data.game && [data.game objectForKey:@"turn"] != data.username)
+    if (data.game && ![[data.game objectForKey:@"turn"] isEqualToString: data.username])
     {
         title = @"Waiting..";
     }
@@ -113,22 +114,26 @@
     re = [self standardButtonWithTitle:@"REFRESH" font:@"Nexa Bold" fontSize:30 target:self selector:@selector(refresh) preferredSize:CGSizeMake(300, 61)];
     moreGames = [self standardButtonWithTitle:@"MORE GAMES" font:@"Nexa Bold" fontSize:20 target:self selector:@selector(moreGames:) preferredSize:CGSizeMake(173, 57)];
     history = [self standardButtonWithTitle:@"HISTORY" font:@"Nexa Bold" fontSize:30 target:self selector:@selector(history) preferredSize:CGSizeMake(300, 61)];
+    end = [self standardButtonWithTitle:@"QQ" font: @"Nexa Bold" fontSize:50 target:self selector:@selector(endGame) preferredSize:CGSizeMake(300, 61)];
     
-    play.position = ccp(160,92);
+//    play.position = ccp(160,300); //play loc varies whether beginning game or not.
 	re.position = ccp(160,30);
 	moreGames.position = ccp(160,400);
     history.position = ccp(160, 350);
+    end.position = ccp(160, 300);
     
     play.position = ccp(play.position.x, screenHeight -play.position.y);
 	re.position = ccp(re.position.x, screenHeight - re.position.y);
 	moreGames.position = ccp(moreGames.position.x, screenHeight - moreGames.position.y);
     history.position = ccp(history.position.x, screenHeight - history.position.y);
+    end.position = ccp(end.position.x, screenHeight - end.position.y);
 
     
     [self addChild:play];
     [self addChild:re];
     [self addChild:moreGames];
     [self addChild:history];
+    [self addChild:end];
     
     [self loadGame];
     
@@ -147,6 +152,12 @@
 		//If you're friends with the player, add friendName to the game dictionary
 		if (data.friendFullName)
 			[data.game setObject:data.friendFullName forKey:@"friendName"];
+        
+        //set all our game variables in data, for ease of access
+        data.promptForMe = [[data.game objectForKey: @"gamedata"] objectForKey: @"promptForMe"];
+        data.friendFullName = [data.game objectForKey:@"friendName"];
+        data.opponentName = [InterfaceLayer shortName:data.friendFullName];
+        data.playerName = [InterfaceLayer shortName:[user objectForKey:@"name"]];
     }
 	else
 	{
@@ -168,14 +179,16 @@
     {
         data.new = YES;
         data.promptForMe = @"";
-        data.promptForThem = @"";
         data.myPic = nil;
         data.theirPic = nil;
+        play.position = ccp(160, 330);
         [play setTitle:@"BEGIN GAME" forState: CCControlStateNormal];
         play.visible = YES;
         re.visible = NO;
         moreGames.visible = NO;
         history.visible = NO;
+        end.visible = NO;
+        displayWord.visible = NO;
     }
     else //game exists already (either my turn, or just finished my turn.)
     {
@@ -204,53 +217,59 @@
         if ([turn isEqualToString: data.username]) //if start of my turn, show what friend did
         {                    
             NSDictionary* gameData = [data.game objectForKey: @"gamedata"];
-            
+            data.promptForMe = [[data.game objectForKey: @"gamedata"] objectForKey: @"promptForMe"];
+
             if ([gameData objectForKey:@"theirPic"])
             {
-            //show theirPic
-            UIImage* theirPic = [gameData objectForKey: @"theirPic"];
-            CCSprite* pic = [[CCSprite alloc] initWithCGImage: [theirPic CGImage] key:@"pic"];
-            pic.scale = 0.5f;
-            pic.position = ccp(160, 240);
-            [self addChild: pic];
+                //show theirPic
+                UIImage* theirPic = [gameData objectForKey: @"theirPic"];
+                CCSprite* pic = [[CCSprite alloc] initWithCGImage: [theirPic CGImage] key:@"pic"];
+                pic.scale = 0.5f;
+                pic.position = ccp(160, 240);
+                [self addChild: pic];
             }
             //show theirPrompt
+            [self removeChild: displayWord];
             NSString* word = [gameData objectForKey:@"theirPrompt"];
-            CCLabelTTF* theirPrompt = [CCLabelTTF labelWithString:word fontName:@"Nexa Bold" fontSize:12];
-            theirPrompt.position = ccp(160, 380);
-            [self addChild: theirPrompt];
-            
-            play.position = ccp(160, 70);
+            displayWord = [CCLabelTTF labelWithString:word fontName:@"Nexa Bold" fontSize:20];
+            displayWord.position = ccp(160, 380);
+            [self addChild: displayWord];
+
+            play.position = ccp(160, 350);
             [play setTitle:@"YOUR TURN!" forState: CCControlStateNormal];
             re.visible = NO;
             moreGames.visible = NO;
             play.visible = YES;
-            history.visible = YES;
+            history.visible = NO;
+            end.visible = NO;
         }
         else //finished my turn, awaiting response.
         {
             NSDictionary* gamedata = [data.game objectForKey: @"gamedata"];
             
-            if ([gamedata objectForKey:@"theirPrompt"] && [gamedata objectForKey: @"theirPic"])
+            if ([gamedata objectForKey:@"promptForMe"])
             {
                 //display their prompt for you
+                [self removeChild: displayWord];
                 NSString* word = [gamedata objectForKey: @"theirPrompt"];
-                CCLabelTTF* promptForMe = [CCLabelTTF labelWithString:word fontName:@"Nexa Bold" fontSize:12];
-                promptForMe.position = ccp (160, 120);
-                [self addChild: promptForMe];
+                displayWord = [CCLabelTTF labelWithString:word fontName:@"Nexa Bold" fontSize:20];
+                displayWord.position = ccp(160, 360);
+                [self addChild: displayWord];
+            }
+            if ([gamedata objectForKey: @"theirPic"])
+            {
                 //display my pic that I just took
                 UIImage* myPic = [gamedata objectForKey:@"theirPic"];
                 CCSprite* pic = [[CCSprite alloc] initWithCGImage:[myPic CGImage] key:@"pic"];
                 pic.scale = 0.5f;
                 pic.position = ccp(160, 200);
-                
             }
-            
             
             re.visible = YES;
             moreGames.visible = YES;
             play.visible = NO;
             history.visible = YES;
+            end.visible = NO;
         }
 
 
@@ -300,10 +319,11 @@
 {
     [[SimpleAudioEngine sharedEngine] playEffect:@"start.wav"];
     StyledCCLayer *destination;
-    if (data.game) //if theres a game going on, time to take pic. QUESTION:if opponent just played, but this player just oppened app, data.game = nil, right? but there is a game????
+    if (!data.new)
     {
         //page flip/swivel transition
         destination = [[PhotoLayer alloc] init];
+        destination.gameLayer = self;
     }
     else //game just starting; start with prompt.
     {
@@ -314,6 +334,25 @@
     [CCDirector.sharedDirector pushScene:transition];
 }
 
+-(void) endGame
+{
+    //crytears because i messed up; delete game so we can restart.
+    data.new = TRUE;
+    //First I'll set data.game to nil
+    //Now I'll try to get variables out of a nil object
+    //I wonder what could possibly be going wrong?!?!
+    [MGWU move:@{} withMoveNumber:([[data.game objectForKey: @"movecount"] intValue] + 1) forGame:[[data.game objectForKey:@"gameid"] intValue] withGameState:@"ended" withGameData:@{} againstPlayer:data.opponent withPushNotificationMessage:@"" withCallback:@selector(gameEndCheck:) onTarget:self];
+}
+
+-(void) gameEndCheck: (NSDictionary*) game
+{
+    NSLog(@"%@", game);// [MGWU getMyInfoWithCallback:@selector(gotUserInfo:) onTarget:self];
+}
+
+-(void) gotUserInfo: (NSMutableDictionary*) user
+{
+    [self setupGame];
+}
 -(void) history //go view history
 {
     [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
@@ -324,31 +363,14 @@
 
 -(void) updateGameWithWord: (NSString*) word
 {
-//    //clear screen of menu & title
-//    [self removeAllChildren];
-//    
-//    //display word chosen
-//    CGSize winSize = [[CCDirector sharedDirector] winSize];
-//    
-//    CCLabelTTF* youChose = [CCLabelTTF labelWithString:@"You chose" fontName: @"Nexa Bold" fontSize: 30];
-//    CCLabelTTF* choice = [CCLabelTTF labelWithString:word fontName: @"Nexa Bold" fontSize: 45];
-//    
-//    youChose.position = ccp(winSize.width/2, winSize.height/2+20);
-//    choice.position = ccp(winSize.width/2, winSize.height/2-20);
-//    
-//    [self addChild:youChose];
-//    [self addChild:choice];
-    
-    
     //send over word and pic/word set in gamedata
-    
     NSMutableDictionary* move;
     int moveNumber;
     NSString* gameState;
     NSMutableDictionary* gameData;
     NSString* opponent = data.opponent;
     NSString* pushMessage;
-    NSNumber* gameid;
+    int gameid;
     if (data.new){
         NSString* player = data.username;
         move = [NSMutableDictionary dictionaryWithDictionary:
@@ -359,29 +381,31 @@
         gameState = @"started";
         gameData = [NSMutableDictionary dictionaryWithDictionary:@{//@"theirPic"   : nil,
                     @"theirPrompt": @"",
-                    @"promptForMe": data.promptForThem}]; //Keys in terms of next person for convenience
+                    @"promptForMe": word}]; //Keys in terms of next person for convenience
         pushMessage = [NSString stringWithFormat:@"%@ challenges you to a game!", data.playerName];
-        gameid = @0;
+        gameid = 0;
         [MGWU logEvent: @"began_game" withParams: @{@"word":word}];
     }
     else
     {
+        NSString* myName = data.username;
+        NSString* myPrompt = data.promptForMe;
         move = [NSMutableDictionary dictionaryWithDictionary:@{
                 @"player" : data.username,
-                @"prompt" : data.promptForMe,
-                @"pic"    : data.myPic}];
-        moveNumber = [[data.game objectForKey: @"moveCount"] intValue] + 1;
+                @"prompt" : data.promptForMe}];
+               // @"pic"    : data.myPic}];
+        moveNumber = [[data.game objectForKey: @"movecount"] intValue] + 1;
         gameState = @"inprogress";
         gameData = [NSMutableDictionary dictionaryWithDictionary:
-                    @{@"theirPic"    : data.myPic,
+                    @{//@"theirPic"    : data.myPic,
                     @"theirPrompt" : data.promptForMe,
-                    @"promptForMe" : data.promptForThem}];
-        gameid = [data.game objectForKey:@"gameid"];
+                    @"promptForMe" : word}];
+        gameid = [[data.game objectForKey:@"gameid"] intValue];
         pushMessage = [NSString stringWithFormat:@"%@ took a picture of something %@ for you!", data.playerName, data.promptForMe];
         
     }
     [MGWU move:move withMoveNumber:moveNumber forGame:gameid withGameState:gameState withGameData:gameData againstPlayer:opponent withPushNotificationMessage:pushMessage withCallback:@selector(gotGame:) onTarget:self];
-    
+    //    [MGWU move:@{} withMoveNumber:([[data.game objectForKey: @"movecount"] intValue] + 1) forGame:[[data.game objectForKey:@"gameid"] intValue] withGameState:@"ended" withGameData:@{} againstPlayer:data.opponent withPushNotificationMessage:@"" withCallback:@selector(gameEndCheck:) onTarget:self];
 }
 
 

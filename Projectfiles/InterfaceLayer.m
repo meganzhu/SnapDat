@@ -174,6 +174,9 @@ static InterfaceLayer* sharedInstance; //allows access to interface layer from a
 	nonPlayers = [MGWU friendsToInvite];
     Data* data = [Data sharedData];
     data.username = [user objectForKey: @"username"];
+    data.user = user;
+    data.userInfo = userInfo;
+    data.games = games;
 	
 	NSArray *playingFriends = [NSArray arrayWithArray:players];
 	

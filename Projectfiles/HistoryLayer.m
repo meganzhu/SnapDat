@@ -45,12 +45,16 @@
     {
         CCLabelTTF* word = [CCLabelTTF labelWithString:moveWord fontName:@"Nexa Bold" fontSize:20];
         word.position = ccp(loc.x, loc.y+90);
-        [self addChild: word];UIImage* movePic = [move objectForKey: @"pic"];
+        [self addChild: word];
         
-        CCSprite* pic = [[CCSprite alloc] initWithCGImage: [movePic CGImage] key:@"pic"];
-        pic.scale = 0.3f;
-        pic.position = loc;
-        [self addChild: pic];
+        if ([move objectForKey:@"pic"])
+        {
+            UIImage* movePic = [move objectForKey: @"pic"];
+            CCSprite* pic = [[CCSprite alloc] initWithCGImage: [movePic CGImage] key:@"pic"];
+            pic.scale = 0.3f;
+            pic.position = loc;
+            [self addChild: pic];
+        }
     }
 
 }
@@ -59,7 +63,7 @@
 {
     [[SimpleAudioEngine sharedEngine] playEffect:@"popBack.wav"];
     //pop scene, slide in new scene from the left
-    [CCDirector.sharedDirector popSceneWithTransition:[CCTransitionSlideInL class] duration:0.25f];
+    [CCDirector.sharedDirector popSceneWithTransition:[CCTransitionFlipX class] duration:0.5f];
 }
 
 @end

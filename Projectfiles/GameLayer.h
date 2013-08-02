@@ -20,13 +20,14 @@
     //Chat icon in nav bar
 	CCMenuItemImage* chatButton;
     CCLabelTTF* chatLabel;
-	
+	CCLabelTTF* displayWord;
 
     
     CCControlButton* play;
 	CCControlButton* re;
     CCControlButton* moreGames;
-    CCControlButton* history;
+    CCControlButton* history; 
+    CCControlButton* end;
     
     //Variable to control reloading of game
 	BOOL inChat;
@@ -46,4 +47,7 @@
 - (void)loadGame;
 - (void)quit;
 -(void) refresh;
+-(void) gameEndCheck: (NSDictionary*) game;
+-(void) gotUserInfo: (NSMutableDictionary*) user;
+
 @end
