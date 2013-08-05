@@ -122,7 +122,7 @@
     history.position = ccp(160, 350);
     end.position = ccp(160, 300);
     
-    play.position = ccp(play.position.x, screenHeight -play.position.y);
+    //play.position = ccp(play.position.x, screenHeight -play.position.y);
 	re.position = ccp(re.position.x, screenHeight - re.position.y);
 	moreGames.position = ccp(moreGames.position.x, screenHeight - moreGames.position.y);
     history.position = ccp(history.position.x, screenHeight - history.position.y);
@@ -235,7 +235,7 @@
             displayWord.position = ccp(160, 380);
             [self addChild: displayWord];
 
-            play.position = ccp(160, 350);
+            play.position = ccp(160, 50);
             [play setTitle:@"YOUR TURN!" forState: CCControlStateNormal];
             re.visible = NO;
             moreGames.visible = NO;

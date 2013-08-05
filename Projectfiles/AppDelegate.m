@@ -27,6 +27,8 @@ NSMutableArray *words;
 #endif
     
 	[MGWU loadMGWU:@"thisisaghettoassgameandeveryoneshouldplayit"];
+    
+    [MGWU useS3WithAccessKey:nil andSecretKey:nil];
 	
     [MGWU dark];
     

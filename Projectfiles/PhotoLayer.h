@@ -18,7 +18,13 @@
     UIViewController *vc;
 }
 -(CCScene*) sceneWithSelf;
-
-
+-(id) init;
+-(void) takePic;
+- (void) alertView:(UIAlertView *)alert clickedButtonAtIndex:(NSInteger)buttonIndex;
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info;
+- (NSString*)saveImage: (UIImage*)image;
+- (void) toPromptLayer;
+- (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo;
+-(void) back;
 
 @end

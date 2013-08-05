@@ -26,14 +26,13 @@
     if(self = [super init])
     {
         data = [Data sharedData];
-        data.isPrePhotoTesting = TRUE;
-
+        data.isPrePhotoTesting = FALSE;
         vc = [[[UIApplication sharedApplication] keyWindow] rootViewController];
         NSString* word = [[data.game objectForKey: @"gamedata"] objectForKey: @"promptForMe"];
         NSString* prompt = [NSString stringWithFormat:@"%@ sent you", data.opponentName];
         CCLabelTTF *promptLabel = [CCLabelTTF labelWithString:prompt dimensions:CGSizeMake(280, 80) hAlignment:kCCTextAlignmentCenter fontName:@"Nexa Bold" fontSize:25];
         CCLabelTTF *wordLabel = [CCLabelTTF labelWithString: word dimensions: CGSizeMake(280, 80) hAlignment: kCCTextAlignmentCenter fontName: @"Nexa Bold" fontSize:40];
-        button = [self standardButtonWithTitle:[NSString stringWithFormat:@"Something %@", prompt] font:@"Nexa Bold" fontSize:40 target:self selector:@selector(takePic) preferredSize:CGSizeMake(300, 61)];
+        button = [self standardButtonWithTitle:[NSString stringWithFormat:@"Take a pic!", prompt] font:@"Nexa Bold" fontSize:40 target:self selector:@selector(takePic) preferredSize:CGSizeMake(300, 61)];
 
         
         if (data.isPrePhotoTesting == TRUE) //if not ready to take photos, button to go to prompt instead.
@@ -81,15 +80,32 @@
 {
     // Access the uncropped image from info dictionary
 	UIImage *image = [info objectForKey:@"UIImagePickerControllerOriginalImage"];
-    data.myPic = image;
+
 	// Save image
+    data.myPic = image;
+    data.myPicPath = [self saveImage: image];
+    
     UIImageWriteToSavedPhotosAlbum(image, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
     
 //	[picker release];
     
     [self toPromptLayer];
 }
-                                                                                                                             
+
+- (NSString*)saveImage: (UIImage*)image
+{
+    if (image != nil)
+    {
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentsDirectory = [paths objectAtIndex:0];
+        NSString* path = [documentsDirectory stringByAppendingPathComponent:@"test.png" ];
+        NSData* jpeg = UIImageJPEGRepresentation(image, 0.5);
+        [jpeg writeToFile:path atomically:YES];
+        return path;
+    }
+    return nil;
+}
+
 - (void) toPromptLayer
 {
     StyledCCLayer * promptLayer = [[PromptLayer alloc] init];
