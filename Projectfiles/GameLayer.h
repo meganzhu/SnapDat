@@ -23,7 +23,8 @@
 	CCLabelTTF* displayWord;
     
     CCSprite* displayPic;
-
+    
+    float picScale;
     
     CCControlButton* play;
 	CCControlButton* re;
@@ -44,6 +45,7 @@
 
 -(void) moveCompleted: (NSMutableDictionary*) game;
 -(void) updateGameWithWord: (NSString*) word;
+-(void) updateGameWithPic;
 -(CCScene*) sceneWithSelf;
 -(void) setupGame;
 - (void)loadGame;
@@ -53,5 +55,6 @@
 -(void) gotUserInfo: (NSMutableDictionary*) user;
 - (void) displayImage: (UIImage*) image;
 -(UIImage*) loadImageAtPath: (NSString*) path;
++ (UIImage *)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize;
 
 @end

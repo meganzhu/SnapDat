@@ -10,8 +10,6 @@
 
 @implementation Data
 
-@synthesize opponent, username, friendFullName, playerName, opponentName, promptForMe, user, games, userInfo, inPrompt, isPrePhotoTesting, myPicPath;
-
 static Data *sharedData = nil;
 
 

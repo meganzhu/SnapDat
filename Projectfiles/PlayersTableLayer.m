@@ -239,7 +239,7 @@
         }
         //If random player, load random player from the server, callback will begin game
         else
-			[MGWU getRandomPlayerWithCallback:@selector(gotPlayer:) onTarget:self];
+			[MGWU getRandomPlayerWithCallback:@selector(gotGame:) onTarget:self];
     }
     
     //If recommended friend, start a game with the friend
@@ -270,23 +270,49 @@
     
 }
 
--(void)gotPlayer:(NSDictionary*)p
+//-(void)gotPlayer:(NSDictionary*)p
+//{
+//    Data* data = [Data sharedData];
+//	//If player doesn't exist (no player of that username), do nothing
+//	if (!p)
+//		return;
+//
+//	//Start game with player
+//    GameLayer* gameLayer = [[GameLayer alloc] init];
+//    data.opponent = [p objectForKey:@"username"];
+//	//FIX THIS LATER TO CHECK IF USER IS FRIEND
+//    data.opponentName = [p objectForKey:@"username"];
+//	data.playerName = [user objectForKey:@"username"];
+//    [self slideRightTransitionToGame:gameLayer];
+//}
+
+-(void)gotGame:(NSMutableDictionary*)g
 {
-    Data* data = [Data sharedData];
-	//If player doesn't exist (no player of that username), do nothing
-	if (!p)
+	//If error occurs, do nothing
+	if (!g)
 		return;
-
-	//Start game with player
-    GameLayer* gameLayer = [[GameLayer alloc] init];
-    data.opponent = [p objectForKey:@"username"];
-	//FIX THIS LATER TO CHECK IF USER IS FRIEND
-    data.opponentName = [p objectForKey:@"username"];
-	data.playerName = [user objectForKey:@"username"];
-    [self slideRightTransitionToGame:gameLayer];
+    
+	//If the server responds with no existing random game, start a new one
+	if ([[g objectForKey:@"gameid"] intValue] == 0)
+	{
+		//Start game with mgwu-random
+        GameLayer* gameLayer = [[GameLayer alloc] init];
+		Data* data = [Data sharedData];
+		data.opponent = @"mgwu-random";
+		data.opponentName = @"mgwu-random";
+		data.playerName = [user objectForKey:@"username"];
+		[self slideRightTransitionToGame:gameLayer];
+	}
+	//Otherwise, join the game that was returned
+	else
+	{
+		//Play game retreived from server
+		GameLayer* gameLayer = [[GameLayer alloc] init];
+        Data* data = [Data sharedData];
+        data.game = g;
+		[self slideRightTransitionToGame:gameLayer];
+	}
 }
-
-
 
 -(void)slideRightTransitionToGame: (GameLayer*) gameLayer
 {

@@ -29,6 +29,7 @@
 #import "PhotoLayer.h"
 #import "HistoryLayer.h"
 #import "SimpleAudioEngine.h"
+#import "GuessLayer.h"
 
 @implementation GameLayer
 
@@ -155,7 +156,7 @@
 			[data.game setObject:data.friendFullName forKey:@"friendName"];
         
         //set all our game variables in data, for ease of access
-        data.promptForMe = [[data.game objectForKey: @"gamedata"] objectForKey: @"promptForMe"];
+        data.prompt = [[data.game objectForKey: @"gamedata"] objectForKey: @"prompt"];
         data.friendFullName = [data.game objectForKey:@"friendName"];
         data.opponentName = [InterfaceLayer shortName:data.friendFullName];
         data.playerName = [InterfaceLayer shortName:[user objectForKey:@"name"]];
@@ -165,10 +166,10 @@
 		[data.game setObject:[g objectForKey:@"newmessages"] forKey:@"newmessages"];
 	}
 	
-    if (data.inPrompt){
-        //pop prompt scene to show gameLayer
+    if (data.inPhoto){ //CHANGE
+        //pop photo scene to show gameLayer
         [CCDirector.sharedDirector popSceneWithTransition:[CCTransitionSlideInR class] duration:0.25f];
-        data.inPrompt = NO;
+        data.inPhoto = NO;
     }
 	//Update view
 	[self loadGame];
@@ -179,8 +180,10 @@
     if (!data.game) //if no game exists yet
     {
         data.new = YES;
-        data.promptForMe = @"";
         data.myPicPath = nil;
+        data.prompts = nil;
+        data.prompt = nil;
+        data.guess = nil;
         play.position = ccp(160, 330);
         [play setTitle:@"BEGIN GAME" forState: CCControlStateNormal];
         play.visible = YES;
@@ -214,51 +217,41 @@
 			data.playerName = [[user objectForKey:@"username"] stringByReplacingOccurrencesOfString:@"_" withString:@"."];
 		}
 
-        if ([turn isEqualToString: data.username]) //if start of my turn, show what friend did
+        
+        if ([turn isEqualToString: data.username]) //if start of my turn, display what they did, allow to go to guesslayer.
         {                    
             NSDictionary* gameData = [data.game objectForKey: @"gamedata"];
-            data.promptForMe = [[data.game objectForKey: @"gamedata"] objectForKey: @"promptForMe"];
             
-            if ([[data.game objectForKey: @"movecount"] intValue] > 1) 
-            {
-                [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: [[data.game objectForKey: @"movecount"] intValue] withCallback:@selector(displayImage:) onTarget:self];
-            }
+            //displayPic
+            picScale = 0.3f;
+            [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: [[data.game objectForKey: @"movecount"] intValue] withCallback:@selector(displayImage:) onTarget:self];
                 
-            //show theirPrompt
-            NSString* word = [gameData objectForKey:@"theirPrompt"];
-            if (word)
-            {
-                [self removeChild: displayWord];
-                displayWord = [CCLabelTTF labelWithString:word fontName:@"Nexa Bold" fontSize:20];
-                displayWord.position = ccp(160, 380);
-                [self addChild: displayWord];
-            }
             play.position = ccp(160, 50);
-            [play setTitle:@"YOUR TURN!" forState: CCControlStateNormal];
+            [play setTitle:@"GUESS!" forState: CCControlStateNormal];
             re.visible = NO;
             moreGames.visible = NO;
             play.visible = YES;
             history.visible = NO;
-            end.visible = NO;
+            end.visible = YES;
         }
         else //finished my turn, awaiting response. Display my pic and the prompt that it was for
         {
             NSDictionary* gamedata = [data.game objectForKey: @"gamedata"];
             
-            if ([gamedata objectForKey:@"theirPrompt"])
+            if ([gamedata objectForKey:@"prompt"])
             {
-                //display their prompt for you
+                //display prompt.
                 [self removeChild: displayWord];
-                NSString* word = [gamedata objectForKey: @"theirPrompt"];
+                NSString* word = [gamedata objectForKey: @"prompt"];
                 displayWord = [CCLabelTTF labelWithString:word fontName:@"Nexa Bold" fontSize:20];
                 displayWord.position = ccp(160, 360);
                 [self addChild: displayWord];
             }
-            if ([[data.game objectForKey: @"movecount"] intValue] > 1)
-            {
-                [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: [[data.game objectForKey: @"movecount"] intValue] withCallback:@selector(displayImage:) onTarget:self];
-                
-            }
+
+            //display pic.
+            picScale = 0.1f;
+            [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: [[data.game objectForKey: @"movecount"] intValue] withCallback:@selector(displayImage:) onTarget:self];
+
             
             re.visible = YES;
             moreGames.visible = YES;
@@ -310,19 +303,18 @@
 
 
 
--(void) play //go to promptlayer or photolayer.
+-(void) play //go to promptLayer or guesslayer
 {
     [[SimpleAudioEngine sharedEngine] playEffect:@"start.wav"];
     StyledCCLayer *destination;
-    if (!data.new)
-    {
-        //page flip/swivel transition
-        destination = [[PhotoLayer alloc] init];
-        destination.gameLayer = self;
-    }
-    else //game just starting; start with prompt.
+    if (data.new)//newgame, go straight to promptlayer
     {
         destination = [[PromptLayer alloc] init];
+        destination.gameLayer = self;
+    }
+    else //not new game; go to guess as usual.
+    {
+        destination = [[GuessLayer alloc] init];
         destination.gameLayer = self;
     }
     CCTransitionFlipX* transition = [CCTransitionFlipX transitionWithDuration:0.5f scene:[destination sceneWithSelf]];
@@ -357,7 +349,20 @@
     [CCDirector.sharedDirector pushScene:transition];
 }
 
--(void) updateGameWithWord: (NSString*) word
+-(void) updateGameWithWord: (NSString*) word 
+{
+    data.prompt = word;
+    
+    //now go to take pic
+    [CCDirector.sharedDirector popScene];
+    PhotoLayer* photoLayer = [[PhotoLayer alloc] init];
+    photoLayer.gameLayer = self;
+    CCTransitionFlipX* transition = [CCTransitionFlipX transitionWithDuration:0.5f scene:[photoLayer sceneWithSelf]];
+    [CCDirector.sharedDirector pushScene:transition];
+
+}
+
+-(void) updateGameWithPic
 {
     //send over word and pic/word set in gamedata
     NSMutableDictionary* move;
@@ -369,48 +374,54 @@
     int gameid;
     if (data.new)
     {
-        move = [NSMutableDictionary dictionaryWithDictionary:
-                @{@"player" : data.username,}];
-        //no prompt or picture.
+        move = [NSMutableDictionary dictionaryWithDictionary:@{
+                @"player" : data.username,
+                @"prompt" : data.prompt,
+                @"mgwu_file_path" : data.myPicPath}];
+        //no guess
         moveNumber = 1;
         gameState = @"started";
         gamedata = [NSMutableDictionary dictionaryWithDictionary:@{
-                    @"promptForMe": word}]; //Keys in terms of next person for convenience. No prompt or pic
+                @"player" : data.username,
+                @"prompt" : data.prompt,
+                @"prompts" : data.prompts}];
         pushMessage = [NSString stringWithFormat:@"%@ challenges you to a game!", data.playerName];
         gameid = 0;
-        [MGWU logEvent: @"began_game" withParams: @{@"word":word}];
+        [MGWU logEvent: @"began_game" withParams: gamedata];
     }
     else
     {
         move = [NSMutableDictionary dictionaryWithDictionary:@{
                 @"player" : data.username,
-                @"prompt" : data.promptForMe,
-                @"move-file" : data.myPicPath}];
+                @"guess"  : data.guess,
+                @"prompt" : data.prompt,
+                @"mgwu_file_path" : data.myPicPath}];
         moveNumber = [[data.game objectForKey: @"movecount"] intValue] + 1;
         gameState = @"inprogress";
-        gamedata = [NSMutableDictionary dictionaryWithDictionary:
-                    @{//@"theirPic"    : data.myPic,
-                    @"theirPrompt" : data.promptForMe,
-                    @"promptForMe" : word}];
+        gamedata = [NSMutableDictionary dictionaryWithDictionary:@{
+                @"player" : data.username,
+                @"guess"  : data.guess,
+                @"prompt" : data.prompt,
+                @"prompts" : data.prompts}];
+        pushMessage = [NSString stringWithFormat:@"%@ took a picture for you!", data.playerName];
         gameid = [[data.game objectForKey:@"gameid"] intValue];
-        pushMessage = [NSString stringWithFormat:@"%@ took a picture of something %@ for you!", data.playerName, data.promptForMe];
-        
+        [MGWU logEvent: @"made_move" withParams: gamedata];
     }
     [MGWU move:move withMoveNumber:moveNumber forGame:gameid withGameState:gameState withGameData:gamedata againstPlayer:opponent withPushNotificationMessage:pushMessage withCallback:@selector(gotGame:) onTarget:self];
-    //    [MGWU move:@{} withMoveNumber:([[data.game objectForKey: @"movecount"] intValue] + 1) forGame:[[data.game objectForKey:@"gameid"] intValue] withGameState:@"ended" withGameData:@{} againstPlayer:data.opponent withPushNotificationMessage:@"" withCallback:@selector(gameEndCheck:) onTarget:self];
-}
 
-- (void) displayImage: (NSString*) imagePath
+}
+- (void) displayImage: (NSString*) imagePath 
 {
-    UIImage* image = [self loadImageAtPath: imagePath];
+    UIImage* image = [self loadImageAtPath:imagePath];
     if (!image)
     {
         return;
     }
     [self removeChild: displayPic];
-    displayPic = [[CCSprite alloc] initWithCGImage:[image CGImage] key:@"pic"];
-    displayPic.scale = 0.5f;
-    displayPic.position = ccp(160, 200);
+    displayPic = [CCSprite spriteWithCGImage:[image CGImage] key:@"pic"];
+    displayPic.rotation = 90;
+    displayPic.scale = picScale;
+    displayPic.position = ccp(160, 235);
     [self addChild: displayPic];
 }
 - (UIImage*)loadImageAtPath: (NSString*)path
@@ -419,5 +430,14 @@
     return image;
 }
 
++ (UIImage *)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize
+{
+    //UIGraphicsBeginImageContext(newSize);
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
+    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
 
 @end

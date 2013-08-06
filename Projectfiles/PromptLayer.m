@@ -42,7 +42,6 @@
     [[SimpleAudioEngine sharedEngine] preloadEffect:@"popBack.wav"];
     
     
-    data.inPrompt = YES;
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"wordbank" ofType:@"plist"];
     NSDictionary* root = [NSDictionary dictionaryWithContentsOfFile:filePath];
     NSMutableArray* wordbank = [NSMutableArray arrayWithArray:[root objectForKey:@"words"]];
@@ -54,10 +53,13 @@
     }
     //choices is now filled with 3 different words from the wordbank.
     
+    //save this in data.
+    data.prompts = choices;
+    
     //create menu with these 3 words
     CCLabelTTF *title1 = [CCLabelTTF labelWithString:@"Choose a word" fontName:@"Nexa Bold" fontSize:30.0f];
 
-    CCLabelTTF *title2 = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"for %@", data.opponentName] fontName:@"Nexa Bold" fontSize:30.0f];
+    CCLabelTTF *title2 = [CCLabelTTF labelWithString:@"for your pic" fontName:@"Nexa Bold" fontSize:30.0f];
 
     CCControlButton* word1 = [self standardButtonWithTitle:(NSString*)choices[0] font:@"Nexa Bold" fontSize:25 target:self selector:@selector(selected1) preferredSize:CGSizeMake(200, 70)];
     CCControlButton* word2 = [self standardButtonWithTitle:(NSString*)choices[1] font:@"Nexa Bold" fontSize:25 target:self selector:@selector(selected2) preferredSize:CGSizeMake(200, 70)];

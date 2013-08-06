@@ -6,10 +6,8 @@
 	<array>
 		<string>Omnomnom</string>
 		<string>Thug life</string>
-		<string>Not bad</string>
 		<string>Adorable</string>
 		<string>Awkward</string>
-		<string>MLIA</string>
 		<string>True love</string>
 		<string>GG</string>
 		<string>Epic fail</string>
@@ -21,6 +19,7 @@
 		<string>Pro</string>
 		<string>Act normal!</string>
 		<string>Oops</string>
+		<string>Just a flesh wound</string>
 	</array>
 </dict>
 </plist>

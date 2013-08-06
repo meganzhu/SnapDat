@@ -20,6 +20,5 @@
 -(void) selected1;
 -(void) selected2;
 -(void) selected3;
--(void) updateGameWithWord: (NSString*) word;
 
 @end
