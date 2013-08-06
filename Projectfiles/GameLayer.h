@@ -21,6 +21,8 @@
 	CCMenuItemImage* chatButton;
     CCLabelTTF* chatLabel;
 	CCLabelTTF* displayWord;
+    
+    CCSprite* displayPic;
 
     
     CCControlButton* play;
@@ -47,7 +49,9 @@
 - (void)loadGame;
 - (void)quit;
 -(void) refresh;
--(void) gameEndCheck: (NSDictionary*) game;
+//-(void) gameEndCheck: (NSDictionary*) game;
 -(void) gotUserInfo: (NSMutableDictionary*) user;
+- (void) displayImage: (UIImage*) image;
+-(UIImage*) loadImageAtPath: (NSString*) path;
 
 @end

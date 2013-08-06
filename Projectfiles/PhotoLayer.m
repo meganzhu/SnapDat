@@ -82,7 +82,6 @@
 	UIImage *image = [info objectForKey:@"UIImagePickerControllerOriginalImage"];
 
 	// Save image
-    data.myPic = image;
     data.myPicPath = [self saveImage: image];
     
     UIImageWriteToSavedPhotosAlbum(image, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);

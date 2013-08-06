@@ -146,9 +146,10 @@
 	
 	//Prevent cheating by not reloading game if you challenged but haven't started the next round (since the server doesn't know about the challenge yet)
 	NSMutableDictionary *savedGame = [NSMutableDictionary dictionaryWithDictionary:[MGWU objectForKey:gameID]];
-	if ([savedGame isEqualToDictionary:@{}])
+    
+    if ([savedGame isEqualToDictionary:@{}])
 	{
-		data.game = g;
+        data.game = g;
 		//If you're friends with the player, add friendName to the game dictionary
 		if (data.friendFullName)
 			[data.game setObject:data.friendFullName forKey:@"friendName"];
@@ -179,8 +180,7 @@
     {
         data.new = YES;
         data.promptForMe = @"";
-        data.myPic = nil;
-        data.theirPic = nil;
+        data.myPicPath = nil;
         play.position = ccp(160, 330);
         [play setTitle:@"BEGIN GAME" forState: CCControlStateNormal];
         play.visible = YES;
@@ -218,23 +218,21 @@
         {                    
             NSDictionary* gameData = [data.game objectForKey: @"gamedata"];
             data.promptForMe = [[data.game objectForKey: @"gamedata"] objectForKey: @"promptForMe"];
-
-            if ([gameData objectForKey:@"theirPic"])
+            
+            if ([[data.game objectForKey: @"movecount"] intValue] > 1) 
             {
-                //show theirPic
-                UIImage* theirPic = [gameData objectForKey: @"theirPic"];
-                CCSprite* pic = [[CCSprite alloc] initWithCGImage: [theirPic CGImage] key:@"pic"];
-                pic.scale = 0.5f;
-                pic.position = ccp(160, 240);
-                [self addChild: pic];
+                [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: [[data.game objectForKey: @"movecount"] intValue] withCallback:@selector(displayImage:) onTarget:self];
             }
+                
             //show theirPrompt
-            [self removeChild: displayWord];
             NSString* word = [gameData objectForKey:@"theirPrompt"];
-            displayWord = [CCLabelTTF labelWithString:word fontName:@"Nexa Bold" fontSize:20];
-            displayWord.position = ccp(160, 380);
-            [self addChild: displayWord];
-
+            if (word)
+            {
+                [self removeChild: displayWord];
+                displayWord = [CCLabelTTF labelWithString:word fontName:@"Nexa Bold" fontSize:20];
+                displayWord.position = ccp(160, 380);
+                [self addChild: displayWord];
+            }
             play.position = ccp(160, 50);
             [play setTitle:@"YOUR TURN!" forState: CCControlStateNormal];
             re.visible = NO;
@@ -243,11 +241,11 @@
             history.visible = NO;
             end.visible = NO;
         }
-        else //finished my turn, awaiting response.
+        else //finished my turn, awaiting response. Display my pic and the prompt that it was for
         {
             NSDictionary* gamedata = [data.game objectForKey: @"gamedata"];
             
-            if ([gamedata objectForKey:@"promptForMe"])
+            if ([gamedata objectForKey:@"theirPrompt"])
             {
                 //display their prompt for you
                 [self removeChild: displayWord];
@@ -256,13 +254,10 @@
                 displayWord.position = ccp(160, 360);
                 [self addChild: displayWord];
             }
-            if ([gamedata objectForKey: @"theirPic"])
+            if ([[data.game objectForKey: @"movecount"] intValue] > 1)
             {
-                //display my pic that I just took
-                UIImage* myPic = [gamedata objectForKey:@"theirPic"];
-                CCSprite* pic = [[CCSprite alloc] initWithCGImage:[myPic CGImage] key:@"pic"];
-                pic.scale = 0.5f;
-                pic.position = ccp(160, 200);
+                [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: [[data.game objectForKey: @"movecount"] intValue] withCallback:@selector(displayImage:) onTarget:self];
+                
             }
             
             re.visible = YES;
@@ -353,6 +348,7 @@
 {
     [self setupGame];
 }
+
 -(void) history //go view history
 {
     [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
@@ -367,36 +363,32 @@
     NSMutableDictionary* move;
     int moveNumber;
     NSString* gameState;
-    NSMutableDictionary* gameData;
+    NSMutableDictionary* gamedata;
     NSString* opponent = data.opponent;
     NSString* pushMessage;
     int gameid;
-    if (data.new){
-        NSString* player = data.username;
+    if (data.new)
+    {
         move = [NSMutableDictionary dictionaryWithDictionary:
                 @{@"player" : data.username,}];
-        //        @"prompt" : @""}];
-        //                 @"pic"    : nil};
+        //no prompt or picture.
         moveNumber = 1;
         gameState = @"started";
-        gameData = [NSMutableDictionary dictionaryWithDictionary:@{//@"theirPic"   : nil,
-                    @"theirPrompt": @"",
-                    @"promptForMe": word}]; //Keys in terms of next person for convenience
+        gamedata = [NSMutableDictionary dictionaryWithDictionary:@{
+                    @"promptForMe": word}]; //Keys in terms of next person for convenience. No prompt or pic
         pushMessage = [NSString stringWithFormat:@"%@ challenges you to a game!", data.playerName];
         gameid = 0;
         [MGWU logEvent: @"began_game" withParams: @{@"word":word}];
     }
     else
     {
-        NSString* myName = data.username;
-        NSString* myPrompt = data.promptForMe;
         move = [NSMutableDictionary dictionaryWithDictionary:@{
                 @"player" : data.username,
-                @"prompt" : data.promptForMe}];
-               // @"pic"    : data.myPic}];
+                @"prompt" : data.promptForMe,
+                @"move-file" : data.myPicPath}];
         moveNumber = [[data.game objectForKey: @"movecount"] intValue] + 1;
         gameState = @"inprogress";
-        gameData = [NSMutableDictionary dictionaryWithDictionary:
+        gamedata = [NSMutableDictionary dictionaryWithDictionary:
                     @{//@"theirPic"    : data.myPic,
                     @"theirPrompt" : data.promptForMe,
                     @"promptForMe" : word}];
@@ -404,10 +396,28 @@
         pushMessage = [NSString stringWithFormat:@"%@ took a picture of something %@ for you!", data.playerName, data.promptForMe];
         
     }
-    [MGWU move:move withMoveNumber:moveNumber forGame:gameid withGameState:gameState withGameData:gameData againstPlayer:opponent withPushNotificationMessage:pushMessage withCallback:@selector(gotGame:) onTarget:self];
+    [MGWU move:move withMoveNumber:moveNumber forGame:gameid withGameState:gameState withGameData:gamedata againstPlayer:opponent withPushNotificationMessage:pushMessage withCallback:@selector(gotGame:) onTarget:self];
     //    [MGWU move:@{} withMoveNumber:([[data.game objectForKey: @"movecount"] intValue] + 1) forGame:[[data.game objectForKey:@"gameid"] intValue] withGameState:@"ended" withGameData:@{} againstPlayer:data.opponent withPushNotificationMessage:@"" withCallback:@selector(gameEndCheck:) onTarget:self];
 }
 
+- (void) displayImage: (NSString*) imagePath
+{
+    UIImage* image = [self loadImageAtPath: imagePath];
+    if (!image)
+    {
+        return;
+    }
+    [self removeChild: displayPic];
+    displayPic = [[CCSprite alloc] initWithCGImage:[image CGImage] key:@"pic"];
+    displayPic.scale = 0.5f;
+    displayPic.position = ccp(160, 200);
+    [self addChild: displayPic];
+}
+- (UIImage*)loadImageAtPath: (NSString*)path
+{
+    UIImage* image = [UIImage imageWithContentsOfFile:path];
+    return image;
+}
 
 
 @end
