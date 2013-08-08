@@ -177,6 +177,7 @@
             
 -(void) loadGame
 {
+    CGSize screenSize = CCDirector.sharedDirector.winSize;
     if (!data.game) //if no game exists yet
     {
         data.new = YES;
@@ -218,12 +219,13 @@
 		}
 
         
-        if ([turn isEqualToString: data.username]) //if start of my turn, display what they did, allow to go to guesslayer.
+        if ([turn isEqualToString: data.username]) //STARTING MY TURN, display what they did, allow to go to guesslayer.
         {                    
             NSDictionary* gameData = [data.game objectForKey: @"gamedata"];
             
             //displayPic
-            picScale = 0.3f;
+            picScale = 0.65f;
+            displayPic.position = ccp(screenSize.width/2, 245);
             [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: [[data.game objectForKey: @"movecount"] intValue] withCallback:@selector(displayImage:) onTarget:self];
                 
             play.position = ccp(160, 50);
@@ -232,9 +234,9 @@
             moreGames.visible = NO;
             play.visible = YES;
             history.visible = NO;
-            end.visible = YES;
+            end.visible = NO;
         }
-        else //finished my turn, awaiting response. Display my pic and the prompt that it was for
+        else //FINISHED MY TURN, awaiting response. Display my pic and the prompt that it was for
         {
             NSDictionary* gamedata = [data.game objectForKey: @"gamedata"];
             
@@ -242,6 +244,7 @@
             {
                 //display prompt.
                 [self removeChild: displayWord];
+                [self removeChild: displayPic];
                 NSString* word = [gamedata objectForKey: @"prompt"];
                 displayWord = [CCLabelTTF labelWithString:word fontName:@"Nexa Bold" fontSize:20];
                 displayWord.position = ccp(160, 360);
@@ -249,9 +252,14 @@
             }
 
             //display pic.
-            picScale = 0.1f;
-            [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: [[data.game objectForKey: @"movecount"] intValue] withCallback:@selector(displayImage:) onTarget:self];
-
+            picScale = 0.5f;
+            displayPic.position = ccp(screenSize.width/2, 230);
+//            [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: [[data.game objectForKey: @"movecount"] intValue] withCallback:@selector(displayImage:) onTarget:self];
+            
+            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+            NSString *documentsDirectory = [paths objectAtIndex:0];
+            NSString* path = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"com_meganz_snapdat-g%i-m%i.jpg", [[data.game objectForKey:@"gameid"] intValue], [[data.game objectForKey:@"movecount"] intValue]]];
+            [self displayImage:[self loadImageAtPath:path]];
             
             re.visible = YES;
             moreGames.visible = YES;
@@ -355,7 +363,7 @@
     
     //now go to take pic
     [CCDirector.sharedDirector popScene];
-    PhotoLayer* photoLayer = [[PhotoLayer alloc] init];
+    photoLayer = [[PhotoLayer alloc] init];
     photoLayer.gameLayer = self;
     CCTransitionFlipX* transition = [CCTransitionFlipX transitionWithDuration:0.5f scene:[photoLayer sceneWithSelf]];
     [CCDirector.sharedDirector pushScene:transition];
@@ -408,8 +416,8 @@
         [MGWU logEvent: @"made_move" withParams: gamedata];
     }
     [MGWU move:move withMoveNumber:moveNumber forGame:gameid withGameState:gameState withGameData:gamedata againstPlayer:opponent withPushNotificationMessage:pushMessage withCallback:@selector(gotGame:) onTarget:self];
-
 }
+
 - (void) displayImage: (NSString*) imagePath 
 {
     UIImage* image = [self loadImageAtPath:imagePath];
@@ -417,13 +425,13 @@
     {
         return;
     }
-    [self removeChild: displayPic];
-    displayPic = [CCSprite spriteWithCGImage:[image CGImage] key:@"pic"];
-    displayPic.rotation = 90;
-    displayPic.scale = picScale;
-    displayPic.position = ccp(160, 235);
+    UIImage* smallImage = [GameLayer imageWithImage: image scaledToSize: CGSizeMake(640.0f, 960.0f)];//move to before i send pic to server.
+    displayPic = [CCSprite spriteWithCGImage:[smallImage CGImage] key:nil];
+    if ([GameLayer isRetina]) displayPic.scale = picScale * 1.0f;
+    else displayPic.scale = picScale * 0.25f;
     [self addChild: displayPic];
 }
+
 - (UIImage*)loadImageAtPath: (NSString*)path
 {
     UIImage* image = [UIImage imageWithContentsOfFile:path];
@@ -438,6 +446,12 @@
     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return newImage;
+}
+
++(BOOL) isRetina
+{
+    return ([[UIScreen mainScreen] respondsToSelector:@selector(displayLinkWithTarget:selector:)] &&
+            ([UIScreen mainScreen].scale == 2.0));
 }
 
 @end

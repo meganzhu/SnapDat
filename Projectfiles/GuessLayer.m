@@ -36,9 +36,9 @@
     prompt = [[data.game objectForKey: @"gamedata"] objectForKey: @"prompt"];
     prompts = [[data.game objectForKey: @"gamedata"] objectForKey: @"prompts"];
     
-    CCLabelTTF *title1 = [CCLabelTTF labelWithString:[NSString stringWithFormat: @"What word did %@", data.opponentName] fontName:@"Nexa Bold" fontSize:30.0f];
-    
-    CCLabelTTF *title2 = [CCLabelTTF labelWithString:@"take a pic of?" fontName:@"Nexa Bold" fontSize:30.0f];
+    CCLabelTTF *title1 = [CCLabelTTF labelWithString:@"What word did" fontName:@"Nexa Bold" fontSize:30.0f];
+    CCLabelTTF *title2 = [CCLabelTTF labelWithString:data.opponentName fontName:@"Nexa Bold" fontSize:40.0f];
+    CCLabelTTF *title3 = [CCLabelTTF labelWithString:@"take a pic of?" fontName:@"Nexa Bold" fontSize:30.0f];
     
     CCControlButton* word1 = [self standardButtonWithTitle:(NSString*)prompts[0] font:@"Nexa Bold" fontSize:25 target:self selector:@selector(selected1) preferredSize:CGSizeMake(200, 70)];
     CCControlButton* word2 = [self standardButtonWithTitle:(NSString*)prompts[1] font:@"Nexa Bold" fontSize:25 target:self selector:@selector(selected2) preferredSize:CGSizeMake(200, 70)];
@@ -46,6 +46,7 @@
     
     title1.position = ccp(160, 400);
     title2.position = ccp(160, 370);
+    title3.position = ccp(160,340);
     word1.position = ccp(160, 280);
     word2.position = ccp(160, 220);
     word3.position = ccp(160, 160);
@@ -53,6 +54,7 @@
     
     [self addChild: title1];
     [self addChild: title2];
+    [self addChild: title3];
     [self addChild: word1];
     [self addChild: word2];
     [self addChild: word3];

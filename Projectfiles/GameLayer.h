@@ -53,8 +53,8 @@
 -(void) refresh;
 //-(void) gameEndCheck: (NSDictionary*) game;
 -(void) gotUserInfo: (NSMutableDictionary*) user;
-- (void) displayImage: (UIImage*) image;
+-(void) displayImage: (UIImage*) image;
 -(UIImage*) loadImageAtPath: (NSString*) path;
-+ (UIImage *)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize;
++(UIImage*)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize;
 
 @end
