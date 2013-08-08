@@ -11,7 +11,7 @@
 @interface Data : NSObject
 
 @property (nonatomic) NSMutableDictionary* game, *user, *userInfo;
-@property (nonatomic) NSString *opponent, *username, *friendFullName, *playerName, *opponentName, *prompt, *myPicPath, *guess;
+@property (nonatomic) NSString *opponent, *username, *friendFullName, *playerName, *opponentName, *prompt, *myPicPath, *guess, *titleName;
 @property (nonatomic) NSArray *games, *prompts;
 @property (nonatomic) BOOL new, inPhoto, isPrePhotoTesting;
 

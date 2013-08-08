@@ -13,6 +13,9 @@
 {
     Data* data;
     NSArray* moves;
+    int moveNumber;
+    int locx;
+    int locy;
 }
 
 -(CCScene*) sceneWithSelf;

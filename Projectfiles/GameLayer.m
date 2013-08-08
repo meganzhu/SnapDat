@@ -30,6 +30,7 @@
 #import "HistoryLayer.h"
 #import "SimpleAudioEngine.h"
 #import "GuessLayer.h"
+#define scalingSoWeird 0.5f
 
 @implementation GameLayer
 
@@ -75,13 +76,17 @@
     CGSize screenSize = CCDirector.sharedDirector.winSize;
     [self removeAllChildren];
     
+    //set all our game variables in data, for ease of access
+    data.prompt = [[data.game objectForKey: @"gamedata"] objectForKey: @"prompt"];
+    data.friendFullName = [data.game objectForKey:@"friendName"];
+    data.opponentName = [InterfaceLayer shortName:data.friendFullName];
+    data.playerName = [InterfaceLayer shortName:[user objectForKey:@"name"]];
+    data.titleName = data.opponentName;
+    
+    if ([data.titleName isEqualToString:@"mgwu-random"])
+        data.titleName = @"Random Player";
     //Top menu bar
-    NSString* title = @"Games";
-    if (data.game && ![[data.game objectForKey:@"turn"] isEqualToString: data.username])
-    {
-        title = @"Waiting..";
-    }
-    [self addNavBarWithTitle: title];
+    [self addNavBarWithTitle: data.titleName];
     [self addBackButton];
     
     //Chat button
@@ -224,10 +229,11 @@
             NSDictionary* gameData = [data.game objectForKey: @"gamedata"];
             
             //displayPic
-            picScale = 0.65f;
-            displayPic.position = ccp(screenSize.width/2, 245);
-            [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: [[data.game objectForKey: @"movecount"] intValue] withCallback:@selector(displayImage:) onTarget:self];
-                
+            picScale = 0.75f;
+            picx = screenSize.width/2;
+            picy = 245;
+            
+            [self removeChild: displayWord];
             play.position = ccp(160, 50);
             [play setTitle:@"GUESS!" forState: CCControlStateNormal];
             re.visible = NO;
@@ -253,13 +259,13 @@
 
             //display pic.
             picScale = 0.5f;
-            displayPic.position = ccp(screenSize.width/2, 230);
-//            [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: [[data.game objectForKey: @"movecount"] intValue] withCallback:@selector(displayImage:) onTarget:self];
+            picx = screenSize.width/2;
+            picy = 230;
             
-            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-            NSString *documentsDirectory = [paths objectAtIndex:0];
-            NSString* path = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"com_meganz_snapdat-g%i-m%i.jpg", [[data.game objectForKey:@"gameid"] intValue], [[data.game objectForKey:@"movecount"] intValue]]];
-            [self displayImage:[self loadImageAtPath:path]];
+//            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+//            NSString *documentsDirectory = [paths objectAtIndex:0];
+//            NSString* path = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"com_meganz_snapdat-g%i-m%i.jpg", [[data.game objectForKey:@"gameid"] intValue], [[data.game objectForKey:@"movecount"] intValue]]];
+//            [self displayImage:path];
             
             re.visible = YES;
             moreGames.visible = YES;
@@ -267,11 +273,16 @@
             history.visible = YES;
             end.visible = NO;
         }
-
+        
+        [self performSelector:@selector(getImage) withObject:nil afterDelay:1];
 
     }
 }
 
+- (void)getImage
+{
+    [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: [[data.game objectForKey: @"movecount"] intValue] withCallback:@selector(displayImage:) onTarget:self];
+}
 
 -(void) back
 {
@@ -415,20 +426,23 @@
         gameid = [[data.game objectForKey:@"gameid"] intValue];
         [MGWU logEvent: @"made_move" withParams: gamedata];
     }
+    NSLog(@"%@", move);
     [MGWU move:move withMoveNumber:moveNumber forGame:gameid withGameState:gameState withGameData:gamedata againstPlayer:opponent withPushNotificationMessage:pushMessage withCallback:@selector(gotGame:) onTarget:self];
 }
 
 - (void) displayImage: (NSString*) imagePath 
 {
     UIImage* image = [self loadImageAtPath:imagePath];
+    [self removeChild: displayPic];
     if (!image)
     {
         return;
     }
-    UIImage* smallImage = [GameLayer imageWithImage: image scaledToSize: CGSizeMake(640.0f, 960.0f)];//move to before i send pic to server.
-    displayPic = [CCSprite spriteWithCGImage:[smallImage CGImage] key:nil];
-    if ([GameLayer isRetina]) displayPic.scale = picScale * 1.0f;
-    else displayPic.scale = picScale * 0.25f;
+
+    displayPic = [CCSprite spriteWithCGImage:[image CGImage] key:nil];
+    if ([GameLayer isRetina]) displayPic.scale = picScale * 1.0f * scalingSoWeird;
+    else displayPic.scale = picScale * 0.5f * scalingSoWeird;
+    displayPic.position = ccp(picx, picy);
     [self addChild: displayPic];
 }
 

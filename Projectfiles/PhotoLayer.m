@@ -81,10 +81,13 @@
     // Access the uncropped image from info dictionary
 	UIImage *image = [info objectForKey:@"UIImagePickerControllerOriginalImage"];
 
-	// Save image
-    data.myPicPath = [self saveImage: image];
+    //downsize image.
+    UIImage* smallImage = [GameLayer imageWithImage:image scaledToSize: CGSizeMake(640.0f, 960.0f)];
     
-    UIImageWriteToSavedPhotosAlbum(image, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
+	// Save image
+    data.myPicPath = [self saveImage: smallImage];
+    
+    UIImageWriteToSavedPhotosAlbum(smallImage, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
     
 //	[picker release];
     

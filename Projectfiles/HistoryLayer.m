@@ -24,15 +24,19 @@
 {
     if(self = [super init])
     {
+        //CHANGE: moves right now is really inaccurate.
         data = [Data sharedData];
         moves = [data.game objectForKey: @"moves"];
         [self addNavBarWithTitle: @"History"];
         [self addBackButton];
-        float y = 370;
-        for (int i = [moves count] -1; i >=0; i--)
+        locy = 370;
+        locx = 160;
+        moveNumber = [data.game objectForKey:@"movecount"];
+        for (int i = [moves count] -1; i >=0; i--, moveNumber--)
         {
-            [self displayMove: moves[i] at: CGPointMake(160, y)];
-            y -= 140;
+            
+            [MGWU getFileWithExtension:@"jpg" forGame:[data.game objectForKey:@"gameid"] andMove:moveNumber withCallback:@selector(displayPicWithPath:) onTarget:self];
+            locy -= 140;
         }
     }
     return self;
@@ -47,18 +51,19 @@
         word.position = ccp(loc.x, loc.y+90);
         [self addChild: word];
         
-        if ([move objectForKey:@"pic"])
-        {
-            UIImage* movePic = [move objectForKey: @"pic"];
-            CCSprite* pic = [[CCSprite alloc] initWithCGImage: [movePic CGImage] key:@"pic"];
-            pic.scale = 0.3f;
-            pic.position = loc;
-            [self addChild: pic];
-        }
+
+
     }
 
 }
 
+-(void) displayWithPicPath: (NSString*) picPath
+{
+    CCSprite* pic = [[CCSprite alloc] initWithCGImage: [movePic CGImage] key:@"pic"];
+    pic.scale = 0.3f;
+    pic.position = loc;
+    [self addChild: pic];
+}
 -(void) back
 {
     [[SimpleAudioEngine sharedEngine] playEffect:@"popBack.wav"];

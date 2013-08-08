@@ -23,6 +23,8 @@
 	CCLabelTTF* displayWord;
     
     CCSprite* displayPic;
+    int picx;
+    int picy;
     
     float picScale;
     
@@ -53,7 +55,7 @@
 -(void) refresh;
 //-(void) gameEndCheck: (NSDictionary*) game;
 -(void) gotUserInfo: (NSMutableDictionary*) user;
--(void) displayImage: (UIImage*) image;
+-(void) displayImage: (NSString*) imagePath;
 -(UIImage*) loadImageAtPath: (NSString*) path;
 +(UIImage*)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize;
 
