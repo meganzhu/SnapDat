@@ -10,6 +10,7 @@
 #import "CGPointExtension.h"
 #import "CCDirector+PopTransition.h"
 #import "SimpleAudioEngine.h"
+#import "GameLayer.h"
 
 @implementation HistoryLayer
 
@@ -26,17 +27,17 @@
     {
         //CHANGE: moves right now is really inaccurate.
         data = [Data sharedData];
-        moves = [data.game objectForKey: @"moves"];
+        prompts = [[data.game objectForKey: @"gamedata"] objectForKey: @"history"];
         [self addNavBarWithTitle: @"History"];
         [self addBackButton];
-        locy = 370;
+        locy = 90;
         locx = 160;
         moveNumber = [data.game objectForKey:@"movecount"];
-        for (int i = [moves count] -1; i >=0; i--, moveNumber--)
+        for (int i = [prompts count] -1; i >=0; i--, moveNumber--)
         {
             
             [MGWU getFileWithExtension:@"jpg" forGame:[data.game objectForKey:@"gameid"] andMove:moveNumber withCallback:@selector(displayPicWithPath:) onTarget:self];
-            locy -= 140;
+            locy += 140;
         }
     }
     return self;
@@ -59,10 +60,22 @@
 
 -(void) displayWithPicPath: (NSString*) picPath
 {
-    CCSprite* pic = [[CCSprite alloc] initWithCGImage: [movePic CGImage] key:@"pic"];
-    pic.scale = 0.3f;
-    pic.position = loc;
-    [self addChild: pic];
+    //deal with pic
+    UIImage* image = [GameLayer loadImageAtPath: picPath];
+    if (!image) return;
+    
+    CCSprite* pic = [CCSprite spriteWithCGImage:[image CGImage] key:nil];
+    pic.scale = 0.2f;
+    if (![GameLayer isRetina]) pic.scale *= 0.5f; //if normal screen, half size again
+    pic.position = ccp(locx, locy);
+    
+    
+    //deal with word
+    NSString* moveWord = [prompts lastObject];
+    CCLabelTTF* word = [CCLabelTTF labelWithString:moveWord fontName:@"Nexa Bold" fontSize:20];
+    word.position = ccp(locx, locy+90);
+    [self addChild: word];
+    [prompts removeLastObject];
 }
 -(void) back
 {

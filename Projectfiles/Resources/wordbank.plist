@@ -20,8 +20,6 @@
 		<string>Act normal!</string>
 		<string>Oops</string>
 		<string>Sketchy</string>
-		<string>Gross</string>
-		<string>Dirty</string>
 		<string>Hawt</string>
 		<string>Unfortunate</string>
 		<string>Lucky</string>
@@ -29,6 +27,10 @@
 		<string>No thank you.</string>
 		<string>Rejected</string>
 		<string>F*** yes</string>
+		<string>Creepy</string>
+		<string>Worst Enemy</string>
+		<string>Godly</string>
+		<string>Hella bank</string>
 	</array>
 </dict>
 </plist>

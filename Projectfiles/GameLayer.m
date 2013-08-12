@@ -50,7 +50,9 @@
     data = [Data sharedData];
     inChat = NO;
     inGuess = NO;
+    inFSPic = NO;
 
+    [self scheduleUpdate];
     return self;
 }
 
@@ -76,15 +78,18 @@
     CGSize screenSize = CCDirector.sharedDirector.winSize;
     [self removeAllChildren];
     
-    //set all our game variables in data, for ease of access
-    data.prompt = [[data.game objectForKey: @"gamedata"] objectForKey: @"prompt"];
-    data.friendFullName = [data.game objectForKey:@"friendName"];
-    data.opponentName = [InterfaceLayer shortName:data.friendFullName];
-    data.playerName = [InterfaceLayer shortName:[user objectForKey:@"name"]];
-    data.titleName = data.opponentName;
+    if (!data.game)
+    {
+        data.titleName = data.opponentName;
+        if ([data.titleName isEqualToString:@"mgwu-random"])
+            data.titleName = @"Random Player";
+    }
+    else
+    {
+        [self setNames];
+        data.titleName = data.opponentName;
+    }
     
-    if ([data.titleName isEqualToString:@"mgwu-random"])
-        data.titleName = @"Random Player";
     //Top menu bar
     [self addNavBarWithTitle: data.titleName];
     [self addBackButton];
@@ -145,6 +150,27 @@
     
 }
 
+-(void) setNames
+{
+    NSArray* players = [data.game objectForKey:@"players"];
+    data.username = [user objectForKey: @"username"];
+    if ([[players objectAtIndex:0] isEqualToString:data.username])
+        data.opponent = [players objectAtIndex:1];
+    else
+        data.opponent = [players objectAtIndex:0];
+    
+    if ([[data.game allKeys] containsObject:@"friendName"])
+    {
+        data.friendFullName = [data.game objectForKey:@"friendName"];
+        data.opponentName = [InterfaceLayer shortName:data.friendFullName];
+        data.playerName = [InterfaceLayer shortName:[user objectForKey:@"name"]];
+    }
+    else
+    {
+        data.opponentName = [data.opponent stringByReplacingOccurrencesOfString:@"_" withString:@"."];
+        data.playerName = [[user objectForKey:@"username"] stringByReplacingOccurrencesOfString:@"_" withString:@"."];
+    }
+}
 - (void)gotGame:(NSMutableDictionary*)g
 {
 	//Update game object and reload game
@@ -204,24 +230,7 @@
         data.new = NO;
 //        NSString* gameState = [data.game objectForKey:@"gamestate"]; no need bc games are never finished ;P
         NSString* turn = [data.game objectForKey: @"turn"];
-        NSArray* players = [data.game objectForKey:@"players"];
-        data.username = [user objectForKey: @"username"];
-		if ([[players objectAtIndex:0] isEqualToString:data.username])
-			data.opponent = [players objectAtIndex:1];
-		else
-			data.opponent = [players objectAtIndex:0];
-		
-		if ([[data.game allKeys] containsObject:@"friendName"])
-		{
-			data.friendFullName = [data.game objectForKey:@"friendName"];
-			data.opponentName = [InterfaceLayer shortName:data.friendFullName];
-			data.playerName = [InterfaceLayer shortName:[user objectForKey:@"name"]];
-		}
-		else
-		{
-			data.opponentName = [data.opponent stringByReplacingOccurrencesOfString:@"_" withString:@"."];
-			data.playerName = [[user objectForKey:@"username"] stringByReplacingOccurrencesOfString:@"_" withString:@"."];
-		}
+//        [self setNames];
 
         
         if ([turn isEqualToString: data.username]) //STARTING MY TURN, display what they did, allow to go to guesslayer.
@@ -229,9 +238,9 @@
             NSDictionary* gameData = [data.game objectForKey: @"gamedata"];
             
             //displayPic
-            picScale = 0.75f;
+            picScale = 0.7f;
             picx = screenSize.width/2;
-            picy = 245;
+            picy = 250;
             
             [self removeChild: displayWord];
             play.position = ccp(160, 50);
@@ -240,7 +249,7 @@
             moreGames.visible = NO;
             play.visible = YES;
             history.visible = NO;
-            end.visible = NO;
+            end.visible = YES;
         }
         else //FINISHED MY TURN, awaiting response. Display my pic and the prompt that it was for
         {
@@ -274,7 +283,7 @@
             end.visible = NO;
         }
         
-        [self performSelector:@selector(getImage) withObject:nil afterDelay:1];
+        [self performSelector:@selector(getImage) withObject:nil afterDelay:0.1];
 
     }
 }
@@ -430,23 +439,36 @@
     [MGWU move:move withMoveNumber:moveNumber forGame:gameid withGameState:gameState withGameData:gamedata againstPlayer:opponent withPushNotificationMessage:pushMessage withCallback:@selector(gotGame:) onTarget:self];
 }
 
-- (void) displayImage: (NSString*) imagePath 
+-(void) displayImage: (NSString*) imagePath
 {
-    UIImage* image = [self loadImageAtPath:imagePath];
+    CGSize oldSize = CGSizeMake(640, 960);
+//    if ([GameLayer isRetina])
+//    {
+    [self displayImage:imagePath withSize:[GameLayer scaleSize: oldSize byMultiplier:0.5*picScale]];
+//    }
+//    else //nonretina view; cut image size in half
+//    {
+//        [self displayImage: imagePath withSize:[GameLayer scaleSize:oldSize byMultiplier:0.5*picScale]];
+//    }
+}
+
+- (void) displayImage: (NSString*) imagePath withSize: (CGSize) imageSize
+{
+    UIImage* image = [GameLayer loadImageAtPath:imagePath];
+    originalImage = image;
     [self removeChild: displayPic];
     if (!image)
     {
         return;
     }
-
-    displayPic = [CCSprite spriteWithCGImage:[image CGImage] key:nil];
-    if ([GameLayer isRetina]) displayPic.scale = picScale * 1.0f * scalingSoWeird;
-    else displayPic.scale = picScale * 0.5f * scalingSoWeird;
+    
+    UIImage* resizedImage = [GameLayer imageWithImage: image scaledToSize: imageSize];
+    displayPic = [CCSprite spriteWithCGImage:[resizedImage CGImage] key:nil];
     displayPic.position = ccp(picx, picy);
-    [self addChild: displayPic];
+    [self addChild: displayPic z:10];
 }
 
-- (UIImage*)loadImageAtPath: (NSString*)path
++ (UIImage*)loadImageAtPath: (NSString*)path
 {
     UIImage* image = [UIImage imageWithContentsOfFile:path];
     return image;
@@ -462,10 +484,37 @@
     return newImage;
 }
 
++(CGSize) scaleSize: (CGSize) retinaSize byMultiplier: (float) multiplier
+{
+        return CGSizeMake(retinaSize.width * multiplier, retinaSize.height * multiplier);
+}
+
 +(BOOL) isRetina
 {
     return ([[UIScreen mainScreen] respondsToSelector:@selector(displayLinkWithTarget:selector:)] &&
             ([UIScreen mainScreen].scale == 2.0));
+}
+
+-(void) update:(ccTime)delta
+{
+    KKInput* input = [KKInput sharedInput];
+    if ([input isAnyTouchOnNode:displayPic touchPhase:KKTouchPhaseBegan])
+    {
+        if (!inFSPic)
+        {
+            displayPic.position = ccp(160, 240);
+            [displayPic setScaleX: 320/displayPic.contentSize.width];
+            [displayPic setScaleY: 480/displayPic.contentSize.height];
+            inFSPic = TRUE;
+        }
+        else //showing pic FullScreen
+        {
+            displayPic.position = ccp(picx, picy);
+            [displayPic setScaleX: 1];
+            [displayPic setScaleY: 1];
+            inFSPic = FALSE;
+        }
+    }
 }
 
 @end

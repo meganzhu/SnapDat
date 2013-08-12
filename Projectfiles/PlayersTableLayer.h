@@ -16,6 +16,8 @@
 	NSMutableArray *players;
 	NSMutableArray *recommendedFriends;
     
+    BOOL gotRandGame;
+    
     NSUInteger indexThresholdYourPlayers;
     NSUInteger indexThresholdRecFriends;
     NSUInteger indexThresholdAllFriends;

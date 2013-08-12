@@ -23,6 +23,7 @@
 	CCLabelTTF* displayWord;
     
     CCSprite* displayPic;
+    UIImage* originalImage;
     int picx;
     int picy;
     
@@ -37,6 +38,7 @@
     //Variable to control reloading of game
 	BOOL inChat;
 	BOOL inGuess;
+    BOOL inFSPic; //fullscreen pic
     
     //Prompt layer and Photo layer and PopupViewController to push onto scene
     PromptLayer* promptLayer;
@@ -50,13 +52,17 @@
 -(void) updateGameWithPic;
 -(CCScene*) sceneWithSelf;
 -(void) setupGame;
-- (void)loadGame;
-- (void)quit;
+-(void)loadGame;
+-(void)quit;
 -(void) refresh;
 //-(void) gameEndCheck: (NSDictionary*) game;
 -(void) gotUserInfo: (NSMutableDictionary*) user;
 -(void) displayImage: (NSString*) imagePath;
--(UIImage*) loadImageAtPath: (NSString*) path;
+-(void) displayImage: (NSString*) imagePath withSize: (CGSize) imageSize;
+-(void) setNames;
++(UIImage*) loadImageAtPath: (NSString*) path;
 +(UIImage*)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize;
-
++(CGSize) scaleSize: (CGSize) retinaSize byMultiplier: (float) multiplier;
++(BOOL) isRetina;
+-(void) update: (ccTime) delta;
 @end

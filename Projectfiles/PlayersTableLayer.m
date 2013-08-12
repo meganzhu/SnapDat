@@ -232,14 +232,19 @@
 			{
 				int randPlayer = arc4random()%[players count];
                 GameLayer* gameLayer = [[GameLayer alloc] init];
+                data.game = nil;
                 data.opponent = [[players objectAtIndex:randPlayer] objectForKey:@"username"];
 				data.opponentName = [InterfaceLayer shortName:[[players objectAtIndex:randPlayer] objectForKey:@"name"]];
+                data.playerName = [InterfaceLayer shortName:[user objectForKey:@"name"]];
                 [self slideRightTransitionToGame:gameLayer];
 			}
         }
         //If random player, load random player from the server, callback will begin game
         else
-			[MGWU getRandomPlayerWithCallback:@selector(gotGame:) onTarget:self];
+        {
+            data.game = nil;
+			[MGWU getRandomGameWithCallback:@selector(gotGame:) onTarget:self];
+        }
     }
     
     //If recommended friend, start a game with the friend
@@ -250,6 +255,7 @@
 		if (arrayIndex == 2 || arrayIndex >= [players count])
 			[MGWU inviteFriend:[[recommendedFriends objectAtIndex:arrayIndex] objectForKey:@"username"] withMessage:@"Play a game with me!"];
 		GameLayer* gameLayer = [[GameLayer alloc] init];
+        data.game = nil;
 		data.opponent = [[recommendedFriends objectAtIndex:arrayIndex] objectForKey:@"username"];
 		data.opponentName = [InterfaceLayer shortName:[[recommendedFriends objectAtIndex:arrayIndex] objectForKey:@"name"]];
 		data.playerName = [InterfaceLayer shortName:[user objectForKey:@"name"]];
@@ -261,6 +267,7 @@
         arrayIndex -= indexThresholdRecFriends;
 
 		GameLayer* gameLayer = [[GameLayer alloc] init];
+        data.game = nil;
 		data.opponent = [[players objectAtIndex:arrayIndex] objectForKey:@"username"];
 		data.opponentName = [InterfaceLayer shortName:[[players objectAtIndex:arrayIndex] objectForKey:@"name"]];
 		data.playerName = [InterfaceLayer shortName:[user objectForKey:@"name"]];
@@ -296,6 +303,7 @@
 	if ([[g objectForKey:@"gameid"] intValue] == 0)
 	{
 		//Start game with mgwu-random
+        gotRandGame = FALSE;
         GameLayer* gameLayer = [[GameLayer alloc] init];
 		Data* data = [Data sharedData];
 		data.opponent = @"mgwu-random";
@@ -307,6 +315,7 @@
 	else
 	{
 		//Play game retreived from server
+        gotRandGame = TRUE;
 		GameLayer* gameLayer = [[GameLayer alloc] init];
         Data* data = [Data sharedData];
         data.game = g;
@@ -318,7 +327,9 @@
 {
     //starting a game, so game is nil.
     Data* data = [Data sharedData];
-    data.game = nil;
+    if (!gotRandGame)
+        data.game = nil;
+    
     [gameLayer setupGame];
     
     //slide in from the right

@@ -12,7 +12,7 @@
 @interface HistoryLayer : StyledCCLayer
 {
     Data* data;
-    NSArray* moves;
+    NSMutableArray* prompts;
     int moveNumber;
     int locx;
     int locy;

@@ -221,6 +221,7 @@
 	[MGWU inviteFriend:[playerData objectForKey:@"username"] withMessage:@"Play a game with me!"];
 
     //Activate game layer
+    data.game = nil;
     data.opponent = [playerData objectForKey:@"username"];
     data.opponentName = [InterfaceLayer shortName:[playerData objectForKey:@"name"]];
     data.playerName = [InterfaceLayer shortName:[user objectForKey:@"name"]];
