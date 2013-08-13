@@ -8,6 +8,7 @@
 #import "PromptLayer.h"
 #import "PopupLayer.h"
 #import "PhotoLayer.h"
+#import "Photo.h"
 #import <UIKit/UIImage.h>
 #import "Data.h"
 
@@ -21,12 +22,9 @@
 	CCMenuItemImage* chatButton;
     CCLabelTTF* chatLabel;
 	CCLabelTTF* displayWord;
-    
-    CCSprite* displayPic;
-    UIImage* originalImage;
+
     int picx;
     int picy;
-    
     float picScale;
     
     CCControlButton* play;
@@ -38,12 +36,15 @@
     //Variable to control reloading of game
 	BOOL inChat;
 	BOOL inGuess;
-    BOOL inFSPic; //fullscreen pic
+
     
     //Prompt layer and Photo layer and PopupViewController to push onto scene
     PromptLayer* promptLayer;
     PhotoLayer* photoLayer;
     __weak PopupLayer* popup;
+    
+    //Photo display, whether their turn or mine
+    Photo* displayPic;
     
 }
 
@@ -58,11 +59,6 @@
 //-(void) gameEndCheck: (NSDictionary*) game;
 -(void) gotUserInfo: (NSMutableDictionary*) user;
 -(void) displayImage: (NSString*) imagePath;
--(void) displayImage: (NSString*) imagePath withSize: (CGSize) imageSize;
--(void) setNames;
-+(UIImage*) loadImageAtPath: (NSString*) path;
-+(UIImage*)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize;
-+(CGSize) scaleSize: (CGSize) retinaSize byMultiplier: (float) multiplier;
+-(void) deliverImagePath: (NSString*) path;
 +(BOOL) isRetina;
--(void) update: (ccTime) delta;
 @end

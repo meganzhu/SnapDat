@@ -36,38 +36,20 @@
         for (int i = [prompts count] -1; i >=0; i--, moveNumber--)
         {
             
-            [MGWU getFileWithExtension:@"jpg" forGame:[data.game objectForKey:@"gameid"] andMove:moveNumber withCallback:@selector(displayPicWithPath:) onTarget:self];
+            [MGWU getFileWithExtension:@"jpg" forGame:[data.game objectForKey:@"gameid"] andMove:moveNumber withCallback:@selector(displayWithPicPath:) onTarget:self];
             locy += 140;
         }
     }
     return self;
 }
 
--(void) displayMove: (NSDictionary*) move at: (CGPoint) loc
-{
-    NSString* moveWord = [move objectForKey: @"prompt"];
-    if (moveWord) //if not first turn, in which we have no prompt or pic
-    {
-        CCLabelTTF* word = [CCLabelTTF labelWithString:moveWord fontName:@"Nexa Bold" fontSize:20];
-        word.position = ccp(loc.x, loc.y+90);
-        [self addChild: word];
-        
-
-
-    }
-
-}
 
 -(void) displayWithPicPath: (NSString*) picPath
 {
     //deal with pic
-    UIImage* image = [GameLayer loadImageAtPath: picPath];
-    if (!image) return;
+    Photo* pic = [pic initWithPath:picPath andPos:ccp(locx, locy) andScale: 0.2f];
+    [self addChild: pic];
     
-    CCSprite* pic = [CCSprite spriteWithCGImage:[image CGImage] key:nil];
-    pic.scale = 0.2f;
-    if (![GameLayer isRetina]) pic.scale *= 0.5f; //if normal screen, half size again
-    pic.position = ccp(locx, locy);
     
     
     //deal with word
@@ -77,6 +59,7 @@
     [self addChild: word];
     [prompts removeLastObject];
 }
+
 -(void) back
 {
     [[SimpleAudioEngine sharedEngine] playEffect:@"popBack.wav"];

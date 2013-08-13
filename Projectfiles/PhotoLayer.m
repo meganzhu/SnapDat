@@ -64,7 +64,7 @@
     imagePicker.delegate = self;
     
     // Allow editing of image ?
-    imagePicker.allowsImageEditing = YES;
+    imagePicker.allowsEditing = NO;
     
     // Show image picker
     [vc presentModalViewController: imagePicker animated:YES];
@@ -82,7 +82,7 @@
 	UIImage *image = [info objectForKey:@"UIImagePickerControllerOriginalImage"];
 
     //downsize image.
-    UIImage* smallImage = [GameLayer imageWithImage:image scaledToSize: CGSizeMake(640.0f, 960.0f)];
+    UIImage* smallImage = [Photo imageWithImage:image scaledToSize: CGSizeMake(640.0f, 960.0f)];
     
 	// Save image
     data.myPicPath = [self saveImage: smallImage];

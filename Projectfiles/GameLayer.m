@@ -30,7 +30,6 @@
 #import "HistoryLayer.h"
 #import "SimpleAudioEngine.h"
 #import "GuessLayer.h"
-#define scalingSoWeird 0.5f
 
 @implementation GameLayer
 
@@ -50,9 +49,7 @@
     data = [Data sharedData];
     inChat = NO;
     inGuess = NO;
-    inFSPic = NO;
 
-    [self scheduleUpdate];
     return self;
 }
 
@@ -235,12 +232,12 @@
         
         if ([turn isEqualToString: data.username]) //STARTING MY TURN, display what they did, allow to go to guesslayer.
         {                    
-            NSDictionary* gameData = [data.game objectForKey: @"gamedata"];
             
             //displayPic
-            picScale = 0.7f;
-            picx = screenSize.width/2;
+            picx = 160;
             picy = 250;
+            picScale = 0.7f;
+
             
             [self removeChild: displayWord];
             play.position = ccp(160, 50);
@@ -267,9 +264,10 @@
             }
 
             //display pic.
-            picScale = 0.5f;
-            picx = screenSize.width/2;
+            picx = 160;
             picy = 230;
+            picScale = 0.5f;
+
             
 //            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 //            NSString *documentsDirectory = [paths objectAtIndex:0];
@@ -290,9 +288,15 @@
 
 - (void)getImage
 {
-    [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: [[data.game objectForKey: @"movecount"] intValue] withCallback:@selector(displayImage:) onTarget:self];
+    [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: [[data.game objectForKey: @"movecount"] intValue] withCallback:@selector(deliverImagePath:) onTarget:self];
 }
 
+-(void) deliverImagePath: (NSString*) path
+{
+    [self removeChild: displayPic];
+    displayPic = [[Photo alloc] initWithPath: path andPos:ccp(picx, picy) andScale: picScale];
+    [self addChild: displayPic z:10];
+}
 -(void) back
 {
     [[SimpleAudioEngine sharedEngine] playEffect:@"popBack.wav"];
@@ -397,22 +401,25 @@
     int moveNumber;
     NSString* gameState;
     NSMutableDictionary* gamedata;
+    NSMutableArray* promptHistory;
     NSString* opponent = data.opponent;
     NSString* pushMessage;
     int gameid;
     if (data.new)
     {
         move = [NSMutableDictionary dictionaryWithDictionary:@{
-                @"player" : data.username,
-                @"prompt" : data.prompt,
+                @"player"  : data.username,
+                @"prompt"  : data.prompt,
                 @"mgwu_file_path" : data.myPicPath}];
         //no guess
         moveNumber = 1;
+        promptHistory = [[NSMutableArray alloc] initWithObjects:data.prompt, nil];
         gameState = @"started";
         gamedata = [NSMutableDictionary dictionaryWithDictionary:@{
-                @"player" : data.username,
-                @"prompt" : data.prompt,
-                @"prompts" : data.prompts}];
+                @"player"  : data.username,
+                @"prompt"  : data.prompt,
+                @"prompts" : data.prompts,
+                @"history" : promptHistory}];
         pushMessage = [NSString stringWithFormat:@"%@ challenges you to a game!", data.playerName];
         gameid = 0;
         [MGWU logEvent: @"began_game" withParams: gamedata];
@@ -420,16 +427,17 @@
     else
     {
         move = [NSMutableDictionary dictionaryWithDictionary:@{
-                @"player" : data.username,
-                @"guess"  : data.guess,
-                @"prompt" : data.prompt,
+                @"player"  : data.username,
+                @"guess"   : data.guess,
+                @"prompt"  : data.prompt,
                 @"mgwu_file_path" : data.myPicPath}];
         moveNumber = [[data.game objectForKey: @"movecount"] intValue] + 1;
+        promptHistory = //fix later
         gameState = @"inprogress";
         gamedata = [NSMutableDictionary dictionaryWithDictionary:@{
-                @"player" : data.username,
-                @"guess"  : data.guess,
-                @"prompt" : data.prompt,
+                @"player"  : data.username,
+                @"guess"   : data.guess,
+                @"prompt"  : data.prompt,
                 @"prompts" : data.prompts}];
         pushMessage = [NSString stringWithFormat:@"%@ took a picture for you!", data.playerName];
         gameid = [[data.game objectForKey:@"gameid"] intValue];
@@ -439,55 +447,55 @@
     [MGWU move:move withMoveNumber:moveNumber forGame:gameid withGameState:gameState withGameData:gamedata againstPlayer:opponent withPushNotificationMessage:pushMessage withCallback:@selector(gotGame:) onTarget:self];
 }
 
--(void) displayImage: (NSString*) imagePath
-{
-    CGSize oldSize = CGSizeMake(640, 960);
-//    if ([GameLayer isRetina])
+//-(void) displayImage: (NSString*) imagePath
+//{
+//    CGSize oldSize = CGSizeMake(640, 960);
+////    if ([GameLayer isRetina])
+////    {
+//    [self displayImage:imagePath withSize:[GameLayer scaleSize: oldSize byMultiplier:0.5*picScale]];
+////    }
+////    else //nonretina view; cut image size in half
+////    {
+////        [self displayImage: imagePath withSize:[GameLayer scaleSize:oldSize byMultiplier:0.5*picScale]];
+////    }
+//}
+//
+//- (void) displayImage: (NSString*) imagePath withSize: (CGSize) imageSize
+//{
+//    UIImage* image = [GameLayer loadImageAtPath:imagePath];
+//    originalImage = image;
+//    [self removeChild: displayPic];
+//    if (!image)
 //    {
-    [self displayImage:imagePath withSize:[GameLayer scaleSize: oldSize byMultiplier:0.5*picScale]];
+//        return;
 //    }
-//    else //nonretina view; cut image size in half
-//    {
-//        [self displayImage: imagePath withSize:[GameLayer scaleSize:oldSize byMultiplier:0.5*picScale]];
-//    }
-}
-
-- (void) displayImage: (NSString*) imagePath withSize: (CGSize) imageSize
-{
-    UIImage* image = [GameLayer loadImageAtPath:imagePath];
-    originalImage = image;
-    [self removeChild: displayPic];
-    if (!image)
-    {
-        return;
-    }
-    
-    UIImage* resizedImage = [GameLayer imageWithImage: image scaledToSize: imageSize];
-    displayPic = [CCSprite spriteWithCGImage:[resizedImage CGImage] key:nil];
-    displayPic.position = ccp(picx, picy);
-    [self addChild: displayPic z:10];
-}
-
-+ (UIImage*)loadImageAtPath: (NSString*)path
-{
-    UIImage* image = [UIImage imageWithContentsOfFile:path];
-    return image;
-}
-
-+ (UIImage *)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize
-{
-    //UIGraphicsBeginImageContext(newSize);
-    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
-    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
-    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return newImage;
-}
-
-+(CGSize) scaleSize: (CGSize) retinaSize byMultiplier: (float) multiplier
-{
-        return CGSizeMake(retinaSize.width * multiplier, retinaSize.height * multiplier);
-}
+//    
+//    UIImage* resizedImage = [GameLayer imageWithImage: image scaledToSize: imageSize];
+//    displayPic = [CCSprite spriteWithCGImage:[resizedImage CGImage] key:nil];
+//    displayPic.position = ccp(picx, picy);
+//    [self addChild: displayPic z:10];
+//}
+//
+//+ (UIImage*)loadImageAtPath: (NSString*)path
+//{
+//    UIImage* image = [UIImage imageWithContentsOfFile:path];
+//    return image;
+//}
+//
+//+ (UIImage *)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize
+//{
+//    //UIGraphicsBeginImageContext(newSize);
+//    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
+//    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+//    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+//    UIGraphicsEndImageContext();
+//    return newImage;
+//}
+//
+//+(CGSize) scaleSize: (CGSize) retinaSize byMultiplier: (float) multiplier
+//{
+//        return CGSizeMake(retinaSize.width * multiplier, retinaSize.height * multiplier);
+//}
 
 +(BOOL) isRetina
 {
@@ -495,26 +503,6 @@
             ([UIScreen mainScreen].scale == 2.0));
 }
 
--(void) update:(ccTime)delta
-{
-    KKInput* input = [KKInput sharedInput];
-    if ([input isAnyTouchOnNode:displayPic touchPhase:KKTouchPhaseBegan])
-    {
-        if (!inFSPic)
-        {
-            displayPic.position = ccp(160, 240);
-            [displayPic setScaleX: 320/displayPic.contentSize.width];
-            [displayPic setScaleY: 480/displayPic.contentSize.height];
-            inFSPic = TRUE;
-        }
-        else //showing pic FullScreen
-        {
-            displayPic.position = ccp(picx, picy);
-            [displayPic setScaleX: 1];
-            [displayPic setScaleY: 1];
-            inFSPic = FALSE;
-        }
-    }
-}
+
 
 @end
