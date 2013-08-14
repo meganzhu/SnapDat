@@ -432,13 +432,17 @@
                 @"prompt"  : data.prompt,
                 @"mgwu_file_path" : data.myPicPath}];
         moveNumber = [[data.game objectForKey: @"movecount"] intValue] + 1;
-        promptHistory = //fix later
+        promptHistory = [[data.game objectForKey: @"gamedata"] objectForKey: @"history"];
+        if (promptHistory.count > 2)
+            [promptHistory removeObjectAtIndex:(NSUInteger) 0];
+        [promptHistory addObject:data.prompt];
         gameState = @"inprogress";
         gamedata = [NSMutableDictionary dictionaryWithDictionary:@{
                 @"player"  : data.username,
                 @"guess"   : data.guess,
                 @"prompt"  : data.prompt,
-                @"prompts" : data.prompts}];
+                @"prompts" : data.prompts,
+                @"history" : promptHistory}];
         pushMessage = [NSString stringWithFormat:@"%@ took a picture for you!", data.playerName];
         gameid = [[data.game objectForKey:@"gameid"] intValue];
         [MGWU logEvent: @"made_move" withParams: gamedata];

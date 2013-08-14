@@ -25,19 +25,17 @@
 {
     if(self = [super init])
     {
-        //CHANGE: moves right now is really inaccurate.
         data = [Data sharedData];
-        prompts = [[data.game objectForKey: @"gamedata"] objectForKey: @"history"];
+        prompts = [NSMutableArray arrayWithArray:[[data.game objectForKey: @"gamedata"] objectForKey: @"history"]];
         [self addNavBarWithTitle: @"History"];
         [self addBackButton];
-        locy = 90;
+        locy = 85;
         locx = 160;
-        moveNumber = [data.game objectForKey:@"movecount"];
+        moveNumber = [[data.game objectForKey:@"movecount"] intValue];
         for (int i = [prompts count] -1; i >=0; i--, moveNumber--)
         {
-            
-            [MGWU getFileWithExtension:@"jpg" forGame:[data.game objectForKey:@"gameid"] andMove:moveNumber withCallback:@selector(displayWithPicPath:) onTarget:self];
-            locy += 140;
+            [MGWU getFileWithExtension:@"jpg" forGame:[[data.game objectForKey:@"gameid"] intValue] andMove:moveNumber withCallback:@selector(displayWithPicPath:) onTarget:self];
+            locy += 130;
         }
     }
     return self;
@@ -47,15 +45,14 @@
 -(void) displayWithPicPath: (NSString*) picPath
 {
     //deal with pic
-    Photo* pic = [pic initWithPath:picPath andPos:ccp(locx, locy) andScale: 0.2f];
-    [self addChild: pic];
-    
+    Photo* pic = [[Photo alloc] initWithPath:picPath andPos:ccp(locx + 100, locy) andScale: 0.25f];
+    [self addChild: pic z:10];
     
     
     //deal with word
     NSString* moveWord = [prompts lastObject];
     CCLabelTTF* word = [CCLabelTTF labelWithString:moveWord fontName:@"Nexa Bold" fontSize:20];
-    word.position = ccp(locx, locy+90);
+    word.position = ccp(locx-50, locy);
     [self addChild: word];
     [prompts removeLastObject];
 }
