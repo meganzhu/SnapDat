@@ -246,7 +246,7 @@
             moreGames.visible = NO;
             play.visible = YES;
             history.visible = NO;
-            end.visible = YES;
+            end.visible = NO;
         }
         else //FINISHED MY TURN, awaiting response. Display my pic and the prompt that it was for
         {

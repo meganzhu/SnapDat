@@ -86,6 +86,9 @@
 	NSString *path = [[paths objectAtIndex: 0] stringByAppendingPathComponent:imageName];
 	UIImage *image = [[UIImage alloc] initWithContentsOfFile:path];
 	////////////This block of code searches for an image named imageName
+    
+    if (!image)
+        return;
 
     //round off corners of image
     if (CC_CONTENT_SCALE_FACTOR() == 2.0) //Retina
@@ -97,7 +100,6 @@
 //     ^(CCTexture2D* tex){
 //         [sprite setTexture:tex];
 //     }];
-    
     [self performSelectorOnMainThread:@selector(finalizeImage:) withObject:image waitUntilDone:NO];
 }
 

@@ -82,6 +82,13 @@
 	UIImage *image = [info objectForKey:@"UIImagePickerControllerOriginalImage"];
 
     //downsize image.
+    if (image.size.width > image.size.height) //if landscape, rotate
+    {
+        image = [[UIImage alloc] initWithCGImage: [image CGImage]
+                                           scale: 1.0
+                                     orientation: UIImageOrientationLeft];
+        
+    }
     UIImage* smallImage = [Photo imageWithImage:image scaledToSize: CGSizeMake(640.0f, 960.0f)];
     
 	// Save image
