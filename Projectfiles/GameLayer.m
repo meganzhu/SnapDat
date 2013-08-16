@@ -276,6 +276,7 @@
                 guessLabel = [CCLabelTTF labelWithString:guess fontName:@"Nexa Bold" fontSize:40];
                 
                 displayWord.position = ccp(160, 410);
+                if ([GameLayer isIPhone5]) displayWord.position = ccp(160, 490);
                 theyGuessed.position = ccp(160, 130);
                 guessLabel.position = ccp(160,100);
                 displayWord.visible = YES;
@@ -294,7 +295,7 @@
                 re.visible = NO;
                 moreGames.visible = NO;
                 history.visible = NO;
-                end.visible = YES;
+                end.visible = NO;
                 
                 
             }
@@ -396,18 +397,20 @@
 
 -(void) play //go to promptLayer or guesslayer
 {
-    [[SimpleAudioEngine sharedEngine] playEffect:@"start.wav"];
     StyledCCLayer *destination;
     if (data.new)//newgame, go straight to promptlayer
     {
+        [[SimpleAudioEngine sharedEngine] playEffect:@"start.wav"];
         destination = [[PromptLayer alloc] init];
     }
     else if (!displayGuess)//2nd turn; theres no guess yet. Just displyed their pic; go straight to guesslayer.
     {
+        [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
         destination = [[GuessLayer alloc] init];
     }
     else //3rd+ turn; Just displayed their guess; go to show theirmove
     {
+        [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
         destination = [[TheirMoveLayer alloc] init];
     }
     destination.gameLayer = self;

@@ -26,6 +26,7 @@
 {    
     if(self = [super init])
     {
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"popForward.wav"];
         data = [Data sharedData];
         data.isPrePhotoTesting = FALSE;
         data.inPhoto = TRUE;
@@ -34,7 +35,7 @@
         NSString* prompt = [NSString stringWithFormat:@"Take a pic of something %@", data.prompt];
         CCLabelTTF *promptLabel = [CCLabelTTF labelWithString:prompt dimensions:CGSizeMake(280, 80) hAlignment:kCCTextAlignmentCenter fontName:@"Nexa Bold" fontSize:25];
 
-        button = [self standardButtonWithTitle:[NSString stringWithFormat:@"Pictime!", prompt] font:@"Nexa Bold" fontSize:40 target:self selector:@selector(takePic) preferredSize:CGSizeMake(300, 61)];
+        button = [self standardButtonWithTitle:@"Pictime!" font:@"Nexa Bold" fontSize:40 target:self selector:@selector(takePic) preferredSize:CGSizeMake(300, 61)];
         //CHANGE to camera button.
         
         if (data.isPrePhotoTesting == TRUE) //if not ready to take photos, button to go to prompt instead.
@@ -53,6 +54,7 @@
 -(void) takePic
 {
 
+    [[SimpleAudioEngine sharedEngine] playEffect:@"popForward.wav"];
 //    [self removeAllChildren];
     // Create image picker controller
     UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];

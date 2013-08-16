@@ -46,6 +46,8 @@
         
         friendSent.position = ccp(160, 440);
         next.position = ccp(160, 50);
+        if ([GameLayer isIPhone5]) friendSent.position = ccp(160, 520);
+
         
         [self addChild: friendSent];
         [self addChild: next];
