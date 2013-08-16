@@ -34,7 +34,7 @@ NSMutableArray *words;
     
 	[MGWU forceFacebook];
 	
-	[MGWU setReminderMessage:@"Come back and play Ghost!"];
+	[MGWU setReminderMessage:@"Your friends want more witty photos. You'd better SnapDat!"];
 	
 	//To flag whether push notifications are disabled
 	noPush = NO; //not disabled

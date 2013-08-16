@@ -7,7 +7,21 @@
 //
 
 #import "StyledCCLayer.h"
+#import "Photo.h"
 
 @interface TheirMoveLayer : StyledCCLayer
 
+{
+    Photo* theirPhoto;
+    CCControlButton* next;
+    Data* data;
+    int picx;
+    int picy;
+    float picScale;
+    
+    
+}
+-(CCScene*) sceneWithSelf;
+-(id) init;
+-(void) displayPic: (NSString*) path;
 @end

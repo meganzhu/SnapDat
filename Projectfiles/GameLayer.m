@@ -28,6 +28,7 @@
 #import "Data.h"
 #import "PhotoLayer.h"
 #import "HistoryLayer.h"
+#import "TheirMoveLayer.h"
 #import "SimpleAudioEngine.h"
 #import "GuessLayer.h"
 
@@ -43,13 +44,16 @@
 
 -(id) init 
 {
-    [[SimpleAudioEngine sharedEngine] preloadEffect:@"popForward.wav"];
-    [[SimpleAudioEngine sharedEngine] preloadEffect:@"popBack.wav"];
     self = [super init];
-    data = [Data sharedData];
-    inChat = NO;
-    inGuess = NO;
-
+    if (self)
+    {
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"popForward.wav"];
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"popBack.wav"];
+        self = [super init];
+        data = [Data sharedData];
+        inChat = NO;
+        inGuess = NO;
+    }
     return self;
 }
 
@@ -227,26 +231,73 @@
         data.new = NO;
 //        NSString* gameState = [data.game objectForKey:@"gamestate"]; no need bc games are never finished ;P
         NSString* turn = [data.game objectForKey: @"turn"];
-//        [self setNames];
+        [self setNames];
 
         
-        if ([turn isEqualToString: data.username]) //STARTING MY TURN, display what they did, allow to go to guesslayer.
+        if ([turn isEqualToString: data.username]) //STARTING MY TURN
         {                    
-            
-            //displayPic
-            picx = 160;
-            picy = 250;
-            picScale = 0.7f;
-
-            
-            [self removeChild: displayWord];
-            play.position = ccp(160, 50);
-            [play setTitle:@"GUESS!" forState: CCControlStateNormal];
-            re.visible = NO;
-            moreGames.visible = NO;
-            play.visible = YES;
-            history.visible = NO;
-            end.visible = NO;
+            if ([[data.game objectForKey:@"movecount"] isEqualToNumber:@1]) //2nd turn; no guess yet, so show their pic, then directly to guesslayer.
+            {
+                //set pic display vars
+                picx = 160;
+                picy = 250;
+                if ([GameLayer isIPhone5]) picy = 330;
+                picScale = 0.7f;
+                displayGuess = NO;
+                
+                [self removeChild: displayWord];
+                play.position = ccp(160, 50);
+                [play setTitle:@"GUESS!" forState: CCControlStateNormal];
+                re.visible = NO;
+                moreGames.visible = NO;
+                play.visible = YES;
+                history.visible = NO;
+                end.visible = NO;
+            }
+            else //3rd+ turn; display guess first with your pic, then to theirmovelayer to show what they did.
+            {
+                //set pic display vars
+                picx = 160;
+                picy = 280;
+                if ([GameLayer isIPhone5]) picy += 80;
+                picScale = 0.5;
+                displayGuess = YES;
+                
+                //display the word that I had
+                [self removeChild: displayWord];
+                NSMutableArray* promptHistory = [[data.game objectForKey:@"gamedata"] objectForKey:@"history"];
+                NSUInteger* index = (promptHistory.count - 2);
+                NSString* word = [promptHistory objectAtIndex: index];
+                displayWord = [CCLabelTTF labelWithString:word fontName:@"Nexa Bold" fontSize:20];
+                
+                //display what they guessed
+                theyGuessed = [CCLabelTTF labelWithString:@"They guessed" fontName:@"Nexa Bold" fontSize:20];
+                NSString* guess = [[data.game objectForKey:@"gamedata"] objectForKey: @"guess"];
+                guessLabel = [CCLabelTTF labelWithString:guess fontName:@"Nexa Bold" fontSize:40];
+                
+                displayWord.position = ccp(160, 410);
+                theyGuessed.position = ccp(160, 130);
+                guessLabel.position = ccp(160,100);
+                displayWord.visible = YES;
+                [self addChild: displayWord];
+                [self addChild: theyGuessed];
+                [self addChild: guessLabel];
+                
+                //determine right or wrong
+                NSString* result;
+                if ([guess isEqualToString:word]) result = @"Sweet!";
+                else result = @"Lamee.";
+                
+                [play setTitle:result forState: CCControlStateNormal];
+                play.position = ccp(160, 50);
+                play.visible = YES;
+                re.visible = NO;
+                moreGames.visible = NO;
+                history.visible = NO;
+                end.visible = YES;
+                
+                
+            }
         }
         else //FINISHED MY TURN, awaiting response. Display my pic and the prompt that it was for
         {
@@ -260,13 +311,18 @@
                 NSString* word = [gamedata objectForKey: @"prompt"];
                 displayWord = [CCLabelTTF labelWithString:word fontName:@"Nexa Bold" fontSize:20];
                 displayWord.position = ccp(160, 360);
+                if ([GameLayer isIPhone5]) displayWord.position = ccp(160, 440);
                 [self addChild: displayWord];
             }
 
             //display pic.
             picx = 160;
             picy = 230;
+            if ([GameLayer isIPhone5]) picy = 310;
             picScale = 0.5f;
+            displayGuess = NO;
+            [self removeChild: theyGuessed];
+            [self removeChild: guessLabel];
 
             
 //            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -288,7 +344,10 @@
 
 - (void)getImage
 {
-    [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: [[data.game objectForKey: @"movecount"] intValue] withCallback:@selector(deliverImagePath:) onTarget:self];
+    if(displayGuess)
+        [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: ([[data.game objectForKey: @"movecount"] intValue]-1) withCallback:@selector(deliverImagePath:) onTarget:self];
+    else
+        [MGWU getFileWithExtension: @"jpg" forGame: [[data.game objectForKey:@"gameid"] intValue] andMove: [[data.game objectForKey: @"movecount"] intValue] withCallback:@selector(deliverImagePath:) onTarget:self];
 }
 
 -(void) deliverImagePath: (NSString*) path
@@ -342,13 +401,16 @@
     if (data.new)//newgame, go straight to promptlayer
     {
         destination = [[PromptLayer alloc] init];
-        destination.gameLayer = self;
     }
-    else //not new game; go to guess as usual.
+    else if (!displayGuess)//2nd turn; theres no guess yet. Just displyed their pic; go straight to guesslayer.
     {
         destination = [[GuessLayer alloc] init];
-        destination.gameLayer = self;
     }
+    else //3rd+ turn; Just displayed their guess; go to show theirmove
+    {
+        destination = [[TheirMoveLayer alloc] init];
+    }
+    destination.gameLayer = self;
     CCTransitionFlipX* transition = [CCTransitionFlipX transitionWithDuration:0.5f scene:[destination sceneWithSelf]];
     [CCDirector.sharedDirector pushScene:transition];
 }
@@ -507,6 +569,11 @@
             ([UIScreen mainScreen].scale == 2.0));
 }
 
++(BOOL) isIPhone5
+{
+    CGRect screenRect = [[UIScreen mainScreen] applicationFrame];
+    return (screenRect.size.height == 568);
+}
 
 
 @end

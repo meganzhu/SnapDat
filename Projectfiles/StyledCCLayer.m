@@ -11,7 +11,7 @@
 #import "CCControlButton+NoSwallow.h"
 
 @implementation StyledCCLayer
-@synthesize titleBar,title;
+@synthesize titleBar,title,gameLayer;
 
 //only a single bgImage will ever be referenced
 static __weak CCSprite* bgImage;

@@ -22,6 +22,8 @@
 	CCMenuItemImage* chatButton;
     CCLabelTTF* chatLabel;
 	CCLabelTTF* displayWord;
+    CCLabelTTF* theyGuessed;
+    CCLabelTTF* guessLabel;
 
     int picx;
     int picy;
@@ -36,6 +38,7 @@
     //Variable to control reloading of game
 	BOOL inChat;
 	BOOL inGuess;
+    BOOL displayGuess;
 
     
     //Prompt layer and Photo layer and PopupViewController to push onto scene
@@ -61,4 +64,5 @@
 -(void) displayImage: (NSString*) imagePath;
 -(void) deliverImagePath: (NSString*) path;
 +(BOOL) isRetina;
++(BOOL) isIPhone5;
 @end
